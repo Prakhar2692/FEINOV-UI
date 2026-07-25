@@ -37,20 +37,20 @@ class AppProductShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return const Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppShimmer(
+          AppShimmer(
             width: double.infinity,
             height: 150,
             borderRadius: AppSpacing.radiusL,
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.m),
+            padding: EdgeInsets.all(AppSpacing.m),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 AppShimmer(width: 60, height: 12),
                 SizedBox(height: 8),
                 AppShimmer(width: double.infinity, height: 16),

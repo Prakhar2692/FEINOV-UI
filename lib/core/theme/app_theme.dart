@@ -14,12 +14,8 @@ class AppTheme {
         onPrimary: AppColors.onPrimary,
         secondary: AppColors.secondary,
         onSecondary: AppColors.onSecondary,
-        background: AppColors.background,
-        onBackground: AppColors.onBackground,
-        surface: AppColors.surface,
-        onSurface: AppColors.onSurface,
-        surfaceVariant: AppColors.surfaceVariant,
-        onSurfaceVariant: AppColors.onSurfaceVariant,
+        surface: AppColors.background, // background is deprecated
+        onSurface: AppColors.onBackground, // onBackground is deprecated
         error: AppColors.error,
         onError: AppColors.onError,
       ),
@@ -87,7 +83,7 @@ class AppTheme {
         ),
         hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.hint),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(

@@ -32,7 +32,7 @@ class AppProductCard extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     ),
                     child: Image.network(
                       imageUrl,
@@ -47,7 +47,7 @@ class AppProductCard extends StatelessWidget {
                       icon: const Icon(Icons.favorite_border),
                       onPressed: () {},
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.8),
+                        backgroundColor: Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                   ),
