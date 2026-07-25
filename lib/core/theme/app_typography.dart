@@ -17,7 +17,7 @@ class AppTypography {
     fontSize: 32,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
-    color: AppColors.onBackground,
+    color: AppColors.background,
     fontFamily: _fontFamily,
   );
 

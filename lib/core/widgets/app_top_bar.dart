@@ -1,4 +1,6 @@
+import 'package:feinov_ui/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:feinov_ui/core/theme/app_typography.dart';
 
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -17,9 +19,16 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: title != null ? Text(title!) : null,
+      title: title != null
+          ? Text(title!, style: AppTypography.headlineLarge)
+          : null,
       actions: actions,
-      leading: leading ?? (showBackButton && Navigator.canPop(context) ? const BackButton() : null),
+      backgroundColor: AppColors.primary,
+      leading:
+          leading ??
+          (showBackButton && Navigator.canPop(context)
+              ? const BackButton()
+              : null),
     );
   }
 
