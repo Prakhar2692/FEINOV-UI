@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_product_card.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/cart_badge.dart';
 import '../controllers/home_controller.dart';
 
 class HomePage extends ConsumerWidget {
@@ -39,10 +40,7 @@ class HomePage extends ConsumerWidget {
                   icon: const Icon(Icons.notifications_none),
                   onPressed: () {},
                 ),
-                IconButton(
-                  icon: const Icon(Icons.shopping_cart_outlined),
-                  onPressed: () {},
-                ),
+                const CartBadge(),
               ],
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(70),

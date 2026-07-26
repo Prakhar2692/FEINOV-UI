@@ -9,6 +9,7 @@ import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/categories/presentation/pages/subcategory_page.dart';
 import '../../features/products/presentation/pages/product_listing_page.dart';
 import '../../features/products/presentation/pages/product_details_page.dart';
+import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -73,6 +74,10 @@ GoRouter router(RouterRef ref) {
           final productId = state.pathParameters['productId'] ?? '';
           return ProductDetailsPage(productId: productId);
         },
+      ),
+      GoRoute(
+        path: '/cart',
+        builder: (context, state) => const CartPage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

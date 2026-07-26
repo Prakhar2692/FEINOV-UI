@@ -5,6 +5,8 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../core/widgets/cart_badge.dart';
+import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../controllers/product_details_controller.dart';
 import '../../../home/domain/models/product.dart';
 
@@ -19,6 +21,7 @@ class ProductDetailsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productState = ref.watch(productDetailsControllerProvider(productId));
+    final cartNotifier = ref.read(cartControllerProvider.notifier);
     final selectedVariant = useState<String?>(null);
 
     return productState.when(
@@ -29,19 +32,18 @@ class ProductDetailsPage extends HookConsumerWidget {
           selectedVariant.value = product.variants.first;
         }
 
+        final quantity = cartNotifier.getProductQuantity(product.id);
+
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              // 1. Image Carousel (SliverAppBar)
               _ImageCarouselSliver(images: product.images),
-
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.l),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 2. Title & Wishlist
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -77,8 +79,6 @@ class ProductDetailsPage extends HookConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
-
-                      // 3. Ratings
                       Row(
                         children: [
                           const Icon(Icons.star, color: Colors.amber, size: 20),
@@ -95,8 +95,6 @@ class ProductDetailsPage extends HookConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-
-                      // 4. Price Section
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -128,8 +126,6 @@ class ProductDetailsPage extends HookConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 24),
-
-                      // 5. Variant Selector
                       if (product.variants.isNotEmpty) ...[
                         Text('Select Size', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 12),
@@ -150,18 +146,13 @@ class ProductDetailsPage extends HookConsumerWidget {
                         ),
                         const SizedBox(height: 24),
                       ],
-
                       const Divider(),
                       const SizedBox(height: 24),
-
-                      // 6. Description
                       _ExpandableSection(
                         title: 'Description',
                         content: Text(product.description, style: Theme.of(context).textTheme.bodyLarge),
                         isInitiallyExpanded: true,
                       ),
-
-                      // 7. Benefits
                       if (product.benefits.isNotEmpty)
                         _ExpandableSection(
                           title: 'Benefits',
@@ -179,15 +170,11 @@ class ProductDetailsPage extends HookConsumerWidget {
                             )).toList(),
                           ),
                         ),
-
-                      // 8. What makes it special?
                       if (product.specialFeatures != null)
                         _ExpandableSection(
                           title: 'What makes it Special?',
                           content: Text(product.specialFeatures!, style: Theme.of(context).textTheme.bodyMedium),
                         ),
-
-                      // 9. Key Ingredients
                       if (product.ingredients.isNotEmpty)
                         _ExpandableSection(
                           title: 'Key Ingredients',
@@ -204,15 +191,11 @@ class ProductDetailsPage extends HookConsumerWidget {
                             )).toList(),
                           ),
                         ),
-
-                      // 10. How to use
                       if (product.usageInstructions != null)
                         _ExpandableSection(
                           title: 'How to use',
                           content: Text(product.usageInstructions!, style: Theme.of(context).textTheme.bodyMedium),
                         ),
-
-                      // 11. Product Information
                       if (product.productInfo.isNotEmpty)
                         _ExpandableSection(
                           title: 'Product Information',
@@ -230,8 +213,6 @@ class ProductDetailsPage extends HookConsumerWidget {
                             )).toList(),
                           ),
                         ),
-
-                      // 12. Reviews & Ratings Placeholder
                       _ExpandableSection(
                         title: 'Reviews',
                         content: Column(
@@ -242,15 +223,20 @@ class ProductDetailsPage extends HookConsumerWidget {
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 100), // Spacing for sticky bottom bar
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          bottomNavigationBar: _StickyBottomBar(product: product),
+          bottomNavigationBar: _StickyBottomBar(
+            product: product,
+            quantity: quantity,
+            onQuantityChanged: (newQty) {
+              cartNotifier.updateProductQuantity(product, newQty);
+            },
+          ),
         );
       },
     );
@@ -286,6 +272,11 @@ class _ImageCarouselSliver extends StatelessWidget {
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
+        const CircleAvatar(
+          backgroundColor: Colors.white,
+          child: CartBadge(iconColor: Colors.black),
+        ),
+        const SizedBox(width: 8),
         IconButton(
           icon: const CircleAvatar(
             backgroundColor: Colors.white,
@@ -345,8 +336,14 @@ class _ExpandableSection extends HookWidget {
 
 class _StickyBottomBar extends StatelessWidget {
   final Product product;
+  final int quantity;
+  final ValueChanged<int> onQuantityChanged;
 
-  const _StickyBottomBar({required this.product});
+  const _StickyBottomBar({
+    required this.product,
+    required this.quantity,
+    required this.onQuantityChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -365,13 +362,42 @@ class _StickyBottomBar extends StatelessWidget {
       child: SafeArea(
         child: Row(
           children: [
-            Expanded(
-              child: AppButton(
-                text: 'ADD TO CART',
-                isOutlined: true,
-                onPressed: () {},
+            if (quantity > 0)
+              Expanded(
+                child: Container(
+                  height: 56,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVariant,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusL),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () => onQuantityChanged(quantity - 1),
+                      ),
+                      Text(
+                        quantity.toString(),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () => onQuantityChanged(quantity + 1),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Expanded(
+                child: AppButton(
+                  text: 'ADD TO CART',
+                  isOutlined: true,
+                  onPressed: () => onQuantityChanged(1),
+                ),
               ),
-            ),
             const SizedBox(width: 16),
             Expanded(
               child: AppButton(

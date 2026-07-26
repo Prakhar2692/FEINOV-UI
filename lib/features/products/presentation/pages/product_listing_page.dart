@@ -7,6 +7,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_product_card.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../../../core/widgets/app_top_bar.dart';
+import '../../../../core/widgets/cart_badge.dart';
+import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../controllers/product_listing_controller.dart';
 import '../widgets/product_filter_bottom_sheet.dart';
 
@@ -45,10 +47,7 @@ class ProductListingPage extends HookConsumerWidget {
             icon: const Icon(Icons.search),
             onPressed: () {},
           ),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: () {},
-          ),
+          const CartBadge(),
         ],
       ),
       body: Column(
@@ -63,6 +62,7 @@ class ProductListingPage extends HookConsumerWidget {
                       state: state,
                       notifier: notifier,
                       scrollController: scrollController,
+                      cartRef: ref,
                     ),
             ),
           ),
@@ -112,15 +112,19 @@ class _ProductGrid extends StatelessWidget {
   final ProductListingState state;
   final ProductListingController notifier;
   final ScrollController scrollController;
+  final WidgetRef cartRef;
 
   const _ProductGrid({
     required this.state,
     required this.notifier,
     required this.scrollController,
+    required this.cartRef,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cartNotifier = cartRef.read(cartControllerProvider.notifier);
+
     return CustomScrollView(
       controller: scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
@@ -137,14 +141,15 @@ class _ProductGrid extends StatelessWidget {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final product = state.products[index];
+                final quantity = cartNotifier.getProductQuantity(product.id);
+
                 return AppProductCard(
                   product: product,
+                  quantity: quantity,
                   onTap: () => context.push('/product-details/${product.id}'),
                   onWishlistTap: () => notifier.toggleWishlist(product.id),
-                  onAddToCartTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${product.name} added to cart')),
-                    );
+                  onQuantityChanged: (newQty) {
+                    cartNotifier.updateProductQuantity(product, newQty);
                   },
                 );
               },

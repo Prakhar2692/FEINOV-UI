@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_product_card.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/cart_badge.dart';
 import '../controllers/search_controller.dart' as search_ctrl;
 
 class SearchPage extends HookConsumerWidget {
@@ -31,6 +32,9 @@ class SearchPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search'),
+        actions: const [
+          CartBadge(),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: Padding(

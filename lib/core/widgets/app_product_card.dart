@@ -6,17 +6,19 @@ import '../../features/home/domain/models/product.dart';
 class AppProductCard extends StatelessWidget {
   final Product product;
   final String brand;
+  final int quantity;
   final VoidCallback onTap;
   final VoidCallback? onWishlistTap;
-  final VoidCallback? onAddToCartTap;
+  final ValueChanged<int>? onQuantityChanged;
 
   const AppProductCard({
     super.key,
     required this.product,
     this.brand = 'FEINOV',
+    this.quantity = 0,
     required this.onTap,
     this.onWishlistTap,
-    this.onAddToCartTap,
+    this.onQuantityChanged,
   });
 
   @override
@@ -149,26 +151,80 @@ class AppProductCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 32,
-                    child: OutlinedButton(
-                      onPressed: onAddToCartTap,
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        side: const BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusM),
-                        ),
-                      ),
-                      child: const Text('Add to Cart', style: TextStyle(fontSize: 12)),
-                    ),
+                  // Logic to swap button with quantity selector
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: quantity > 0
+                        ? _QuantitySelector(
+                            key: ValueKey('qty_${product.id}'),
+                            quantity: quantity,
+                            onChanged: onQuantityChanged ?? (_) {},
+                          )
+                        : SizedBox(
+                            key: ValueKey('add_${product.id}'),
+                            width: double.infinity,
+                            height: 32,
+                            child: OutlinedButton(
+                              onPressed: () => onQuantityChanged?.call(1),
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                side: const BorderSide(color: AppColors.primary),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(AppSpacing.radiusM),
+                                ),
+                              ),
+                              child: const Text('Add to Cart', style: TextStyle(fontSize: 12)),
+                            ),
+                          ),
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _QuantitySelector extends StatelessWidget {
+  final int quantity;
+  final ValueChanged<int> onChanged;
+
+  const _QuantitySelector({
+    super.key,
+    required this.quantity,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusM),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.remove, size: 16),
+            onPressed: () => onChanged(quantity - 1),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+          Text(
+            quantity.toString(),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add, size: 16),
+            onPressed: () => onChanged(quantity + 1),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+        ],
       ),
     );
   }
