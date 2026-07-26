@@ -1,6 +1,5 @@
-import 'package:feinov_ui/core/widgets/app_top_bar.dart';
-import 'package:feinov_ui/core/theme/app_typography.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/app_top_bar.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -8,9 +7,9 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      appBar: AppTopBar(title: 'FEINOV'),
+      appBar: AppTopBar(title: 'FEINOV', showBackButton: false),
       body: Center(
-        child: Text('Welcome to FEINOV', style: AppTypography.bodyLarge),
+        child: Text('Welcome to FEINOV'),
       ),
     );
   }
