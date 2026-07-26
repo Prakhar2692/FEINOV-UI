@@ -31,20 +31,20 @@ class OtpPage extends HookConsumerWidget {
     }, []);
 
     ref.listen(otpVerificationControllerProvider, (previous, next) {
-      next.whenOrNull(
-        error: (error, stackTrace) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.toString())),
-          );
-        },
-        data: (_) {
-          if (previous is AsyncLoading) {
-            // Check if it was a verification or resend
-            // For now assume verification success leads to home
-            context.go('/home');
-          }
-        },
-      );
+      if (next.status == OtpStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.errorMessage ?? 'An error occurred')),
+        );
+      } else if (next.status == OtpStatus.verified) {
+        context.go('/home');
+      } else if (next.status == OtpStatus.resent) {
+        // "Reload" behavior: Clear the controller and show success
+        otpController.clear();
+        focusNode.requestFocus();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('OTP Resent Successfully')),
+        );
+      }
     });
 
     final defaultPinTheme = PinTheme(
@@ -66,6 +66,9 @@ class OtpPage extends HookConsumerWidget {
       color: AppColors.surface,
     );
 
+    final bool isLoading = verificationState.status == OtpStatus.verifying || 
+                          verificationState.status == OtpStatus.resending;
+
     return Scaffold(
       appBar: const AppTopBar(title: 'Verify OTP'),
       body: SafeArea(
@@ -78,22 +81,24 @@ class OtpPage extends HookConsumerWidget {
                 otpController,
                 focusNode,
                 timerSeconds,
-                verificationState.isLoading,
+                isLoading,
                 ref,
                 defaultPinTheme,
                 focusedPinTheme,
               ),
-              desktop: SizedBox(
-                width: 450,
-                child: _buildContent(
-                  context,
-                  otpController,
-                  focusNode,
-                  timerSeconds,
-                  verificationState.isLoading,
-                  ref,
-                  defaultPinTheme,
-                  focusedPinTheme,
+              desktop: Center(
+                child: SizedBox(
+                  width: 450,
+                  child: _buildContent(
+                    context,
+                    otpController,
+                    focusNode,
+                    timerSeconds,
+                    isLoading,
+                    ref,
+                    defaultPinTheme,
+                    focusedPinTheme,
+                  ),
                 ),
               ),
             ),

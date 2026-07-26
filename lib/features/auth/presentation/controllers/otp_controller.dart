@@ -3,6 +3,22 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'otp_controller.g.dart';
 
+enum OtpStatus { initial, verifying, verified, resending, resent, error }
+
+class OtpState {
+  final OtpStatus status;
+  final String? errorMessage;
+
+  OtpState({required this.status, this.errorMessage});
+
+  OtpState copyWith({OtpStatus? status, String? errorMessage}) {
+    return OtpState(
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+}
+
 @riverpod
 class OtpTimer extends _$OtpTimer {
   Timer? _timer;
@@ -16,7 +32,7 @@ class OtpTimer extends _$OtpTimer {
   void startTimer() {
     state = 30;
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state > 0) {
         state--;
       } else {
@@ -29,35 +45,35 @@ class OtpTimer extends _$OtpTimer {
 @riverpod
 class OtpVerificationController extends _$OtpVerificationController {
   @override
-  AsyncValue<void> build() {
-    return const AsyncValue.data(null);
+  OtpState build() {
+    return OtpState(status: OtpStatus.initial);
   }
 
   Future<void> verifyOtp(String otp) async {
-    state = const AsyncValue.loading();
+    state = state.copyWith(status: OtpStatus.verifying);
     try {
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
       
       if (otp == '123456') {
-        state = const AsyncValue.data(null);
+        state = state.copyWith(status: OtpStatus.verified);
       } else {
-        throw Exception('Invalid OTP. Try 123456');
+        throw 'Invalid OTP. Try 123456';
       }
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    } catch (e) {
+      state = state.copyWith(status: OtpStatus.error, errorMessage: e.toString());
     }
   }
 
   Future<void> resendOtp(String mobileNumber) async {
-    state = const AsyncValue.loading();
+    state = state.copyWith(status: OtpStatus.resending);
     try {
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
       ref.read(otpTimerProvider.notifier).startTimer();
-      state = const AsyncValue.data(null);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      state = state.copyWith(status: OtpStatus.resent);
+    } catch (e) {
+      state = state.copyWith(status: OtpStatus.error, errorMessage: e.toString());
     }
   }
 }
