@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/utils/responsive_layout.dart';
@@ -31,7 +32,7 @@ class LoginPage extends HookConsumerWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('OTP Sent Successfully')),
             );
-            // Navigate to OTP Verification screen or handle next step
+            context.push('/otp', extra: '+${countryCode.value}${mobileController.text}');
           }
         },
       );
