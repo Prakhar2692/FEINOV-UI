@@ -11,7 +11,11 @@ class Product with _$Product {
     required String description,
     required double price,
     required String imageUrl,
+    double? originalPrice,
+    @Default(0.0) double rating,
+    @Default(0) int reviewCount,
     @Default(false) bool isAvailable,
+    @Default(false) bool isWishlisted,
   }) = _Product;
 
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);

@@ -205,10 +205,8 @@ class _SearchResultsView extends StatelessWidget {
               (context, index) {
                 final product = state.results[index];
                 return AppProductCard(
-                  imageUrl: product.imageUrl,
-                  name: product.name,
+                  product: product,
                   brand: 'Feinov Premium',
-                  price: product.price,
                   onTap: () {},
                 );
               },

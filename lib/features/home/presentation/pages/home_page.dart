@@ -145,10 +145,8 @@ class HomePage extends ConsumerWidget {
                       (context, index) {
                         final product = data.recommended[index];
                         return AppProductCard(
-                          imageUrl: product.imageUrl,
-                          name: product.name,
+                          product: product,
                           brand: 'Feinov Premium',
-                          price: product.price,
                           onTap: () {},
                         );
                       },
@@ -297,10 +295,8 @@ class _ProductHorizontalList extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s),
               child: AppProductCard(
-                imageUrl: product.imageUrl,
-                name: product.name,
+                product: product,
                 brand: 'Feinov',
-                price: product.price,
                 onTap: () {},
               ),
             ),
