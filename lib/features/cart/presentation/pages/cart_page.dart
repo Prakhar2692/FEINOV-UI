@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -248,7 +249,7 @@ class _StickyCheckoutBar extends StatelessWidget {
             Expanded(
               child: AppButton(
                 text: 'PROCEED TO CHECKOUT',
-                onPressed: () {},
+                onPressed: () => context.push('/checkout'),
               ),
             ),
           ],

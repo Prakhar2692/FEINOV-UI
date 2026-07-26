@@ -10,6 +10,7 @@ import '../../features/categories/presentation/pages/subcategory_page.dart';
 import '../../features/products/presentation/pages/product_listing_page.dart';
 import '../../features/products/presentation/pages/product_details_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/checkout/presentation/pages/checkout_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -80,6 +81,10 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/cart',
         builder: (context, state) => const CartPage(),
+      ),
+      GoRoute(
+        path: '/checkout',
+        builder: (context, state) => const CheckoutPage(),
       ),
       GoRoute(
         path: '/addresses',
