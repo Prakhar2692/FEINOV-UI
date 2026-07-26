@@ -13,6 +13,8 @@ import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/address_list_page.dart';
+import '../../features/profile/presentation/pages/add_address_page.dart';
 import '../../features/search/presentation/pages/search_page.dart';
 import '../widgets/main_wrapper.dart';
 
@@ -78,6 +80,20 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/cart',
         builder: (context, state) => const CartPage(),
+      ),
+      GoRoute(
+        path: '/addresses',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final isSelection = extra?['isSelection'] as bool? ?? false;
+          return AddressListPage(isSelectionMode: isSelection);
+        },
+        routes: [
+          GoRoute(
+            path: 'add',
+            builder: (context, state) => const AddAddressPage(),
+          ),
+        ],
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
