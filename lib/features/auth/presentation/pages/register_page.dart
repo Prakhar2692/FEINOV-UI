@@ -15,7 +15,8 @@ class RegisterPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useMemoized(() => GlobalKey<FormState>());
-    final usernameController = useTextEditingController();
+    final firstNameController = useTextEditingController();
+    final lastNameController = useTextEditingController();
     final emailController = useTextEditingController();
     final mobileController = useTextEditingController();
     final countryCode = useState('91');
@@ -28,7 +29,8 @@ class RegisterPage extends HookConsumerWidget {
         mobile: _buildRegisterForm(
           context,
           formKey,
-          usernameController,
+          firstNameController,
+          lastNameController,
           emailController,
           mobileController,
           countryCode,
@@ -41,7 +43,8 @@ class RegisterPage extends HookConsumerWidget {
             child: _buildRegisterForm(
               context,
               formKey,
-              usernameController,
+              firstNameController,
+              lastNameController,
               emailController,
               mobileController,
               countryCode,
@@ -57,27 +60,50 @@ class RegisterPage extends HookConsumerWidget {
   Widget _buildRegisterForm(
     BuildContext context,
     GlobalKey<FormState> formKey,
-    TextEditingController usernameController,
+    TextEditingController firstNameController,
+    TextEditingController lastNameController,
     TextEditingController emailController,
     TextEditingController mobileController,
     ValueNotifier<String> countryCode,
     bool isLoading,
     WidgetRef ref,
   ) {
+    final nameFormatter = FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]'));
+
     return Form(
       key: formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: AppSpacing.m),
-          AppTextField(
-            label: 'Username',
-            hint: 'Choose a username',
-            controller: usernameController,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Required';
-              return null;
-            },
+          Row(
+            children: [
+              Expanded(
+                child: AppTextField(
+                  label: 'First Name',
+                  hint: 'Enter first name',
+                  controller: firstNameController,
+                  inputFormatters: [nameFormatter],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Required';
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(width: AppSpacing.m),
+              Expanded(
+                child: AppTextField(
+                  label: 'Last Name',
+                  hint: 'Enter last name',
+                  controller: lastNameController,
+                  inputFormatters: [nameFormatter],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Required';
+                    return null;
+                  },
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.m),
           AppTextField(
@@ -147,7 +173,8 @@ class RegisterPage extends HookConsumerWidget {
             onPressed: () {
               if (formKey.currentState?.validate() ?? false) {
                 ref.read(registerControllerProvider.notifier).register(
-                  username: usernameController.text,
+                  firstName: firstNameController.text,
+                  lastName: lastNameController.text,
                   email: emailController.text,
                   countryCode: countryCode.value,
                   mobileNumber: mobileController.text,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTextField extends StatelessWidget {
   final String label;
@@ -9,6 +10,7 @@ class AppTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AppTextField({
     super.key,
@@ -20,6 +22,7 @@ class AppTextField extends StatelessWidget {
     this.validator,
     this.prefixIcon,
     this.suffixIcon,
+    this.inputFormatters,
   });
 
   @override
@@ -37,6 +40,7 @@ class AppTextField extends StatelessWidget {
           obscureText: isPassword,
           keyboardType: keyboardType,
           validator: validator,
+          inputFormatters: inputFormatters,
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: prefixIcon,

@@ -10,7 +10,8 @@ class RegisterController extends _$RegisterController {
   }
 
   Future<void> register({
-    required String username,
+    required String firstName,
+    required String lastName,
     required String email,
     required String countryCode,
     required String mobileNumber,
