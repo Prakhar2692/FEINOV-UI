@@ -6,6 +6,8 @@ import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/auth_screen.dart';
 import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
+import '../../features/categories/presentation/pages/subcategory_page.dart';
+import '../../features/products/presentation/pages/product_listing_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -40,6 +42,29 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/search',
         builder: (context, state) => const SearchPage(),
+      ),
+      GoRoute(
+        path: '/subcategories',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final categoryId = extra?['categoryId'] as String? ?? '';
+          final categoryName = extra?['categoryName'] as String? ?? 'Category';
+          return SubcategoryPage(categoryId: categoryId, categoryName: categoryName);
+        },
+      ),
+      GoRoute(
+        path: '/products',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final categoryId = extra?['categoryId'] as String?;
+          final subcategoryId = extra?['subcategoryId'] as String?;
+          final title = extra?['title'] as String? ?? 'Products';
+          return ProductListingPage(
+            categoryId: categoryId,
+            subcategoryId: subcategoryId,
+            title: title,
+          );
+        },
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

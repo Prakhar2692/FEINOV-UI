@@ -5,25 +5,31 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/app_shimmer.dart';
-import '../controllers/category_controller.dart';
+import '../controllers/subcategory_controller.dart';
 
-class CategoriesPage extends ConsumerWidget {
-  const CategoriesPage({super.key});
+class SubcategoryPage extends ConsumerWidget {
+  final String categoryId;
+  final String categoryName;
+
+  const SubcategoryPage({
+    super.key,
+    required this.categoryId,
+    required this.categoryName,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categoriesState = ref.watch(categoryControllerProvider);
+    final subcategoriesState = ref.watch(subcategoryControllerProvider(categoryId));
 
     return Scaffold(
-      appBar: const AppTopBar(
-        title: 'Categories',
-        showBackButton: false,
+      appBar: AppTopBar(
+        title: categoryName,
       ),
-      body: categoriesState.when(
-        loading: () => const _CategoriesLoadingView(),
+      body: subcategoriesState.when(
+        loading: () => const _SubcategoriesLoadingView(),
         error: (err, stack) => Center(child: Text('Error: $err')),
-        data: (categories) => RefreshIndicator(
-          onRefresh: () => ref.read(categoryControllerProvider.notifier).refresh(),
+        data: (subcategories) => RefreshIndicator(
+          onRefresh: () => ref.read(subcategoryControllerProvider(categoryId).notifier).refresh(categoryId),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final crossAxisCount = constraints.maxWidth > 1200
@@ -40,10 +46,10 @@ class CategoriesPage extends ConsumerWidget {
                   crossAxisSpacing: AppSpacing.m,
                   mainAxisSpacing: AppSpacing.m,
                 ),
-                itemCount: categories.length,
+                itemCount: subcategories.length,
                 itemBuilder: (context, index) {
-                  final category = categories[index];
-                  return _CategoryCard(category: category);
+                  final subcategory = subcategories[index];
+                  return _SubcategoryCard(subcategory: subcategory);
                 },
               );
             },
@@ -54,20 +60,20 @@ class CategoriesPage extends ConsumerWidget {
   }
 }
 
-class _CategoryCard extends StatelessWidget {
-  final dynamic category;
+class _SubcategoryCard extends StatelessWidget {
+  final dynamic subcategory;
 
-  const _CategoryCard({required this.category});
+  const _SubcategoryCard({required this.subcategory});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         context.push(
-          '/subcategories',
+          '/products',
           extra: {
-            'categoryId': category.id,
-            'categoryName': category.name,
+            'subcategoryId': subcategory.id,
+            'title': subcategory.name,
           },
         );
       },
@@ -84,7 +90,7 @@ class _CategoryCard extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusL),
                 child: Image.network(
-                  category.imageUrl,
+                  subcategory.imageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => const Icon(
                     Icons.category_outlined,
@@ -97,13 +103,13 @@ class _CategoryCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
-            category.name,
+            subcategory.name,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           Text(
-            '${category.productCount} Products',
+            '${subcategory.productCount} Products',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: AppColors.secondary,
                 ),
@@ -114,8 +120,8 @@ class _CategoryCard extends StatelessWidget {
   }
 }
 
-class _CategoriesLoadingView extends StatelessWidget {
-  const _CategoriesLoadingView();
+class _SubcategoriesLoadingView extends StatelessWidget {
+  const _SubcategoriesLoadingView();
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +133,7 @@ class _CategoriesLoadingView extends StatelessWidget {
         crossAxisSpacing: AppSpacing.m,
         mainAxisSpacing: AppSpacing.m,
       ),
-      itemCount: 6,
+      itemCount: 4,
       itemBuilder: (_, __) => const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
