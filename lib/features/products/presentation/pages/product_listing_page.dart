@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_product_card.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../controllers/product_listing_controller.dart';
+import '../widgets/product_filter_bottom_sheet.dart';
 
 class ProductListingPage extends HookConsumerWidget {
   final String? categoryId;
@@ -85,7 +87,7 @@ class _FilterSortBar extends StatelessWidget {
         children: [
           Expanded(
             child: TextButton.icon(
-              onPressed: () {},
+              onPressed: () => ProductFilterBottomSheet.show(context),
               icon: const Icon(Icons.sort, size: 20),
               label: const Text('Sort'),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
@@ -94,7 +96,7 @@ class _FilterSortBar extends StatelessWidget {
           Container(width: 1, height: 24, color: AppColors.divider),
           Expanded(
             child: TextButton.icon(
-              onPressed: () {},
+              onPressed: () => ProductFilterBottomSheet.show(context),
               icon: const Icon(Icons.filter_list, size: 20),
               label: const Text('Filter'),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
@@ -137,7 +139,7 @@ class _ProductGrid extends StatelessWidget {
                 final product = state.products[index];
                 return AppProductCard(
                   product: product,
-                  onTap: () {},
+                  onTap: () => context.push('/product-details/${product.id}'),
                   onWishlistTap: () => notifier.toggleWishlist(product.id),
                   onAddToCartTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(

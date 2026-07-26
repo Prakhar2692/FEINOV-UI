@@ -5,6 +5,7 @@ class AppColors {
 
   // Luxury Skincare Palette
   static const Color primary = Color(0xFF2D4739); // Deep Forest Green
+  static const Color primaryLight = Color(0xFF456351); // Lighter Forest Green
   static const Color onPrimary = Colors.white;
   
   static const Color secondary = Color(0xFFD4AF37); // Muted Gold

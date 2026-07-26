@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../features/home/domain/models/product.dart';
+import 'product_filter_controller.dart';
 
 part 'product_listing_controller.g.dart';
 
@@ -39,6 +40,11 @@ class ProductListingState {
 class ProductListingController extends _$ProductListingController {
   @override
   ProductListingState build(String? subcategoryId) {
+    // Listen to filter changes to auto-apply them
+    ref.listen(productFilterControllerProvider, (previous, next) {
+      fetchProducts(isRefresh: true);
+    });
+
     _init();
     return ProductListingState(isLoading: true);
   }
@@ -56,20 +62,43 @@ class ProductListingController extends _$ProductListingController {
       // Simulate API call
       await Future.delayed(const Duration(seconds: 1));
 
-      final newProducts = List.generate(
+      final filter = ref.read(productFilterControllerProvider);
+
+      var newProducts = List.generate(
         10,
         (index) => Product(
           id: 'prod_${state.products.length + index}',
           name: 'Skincare Product ${state.products.length + index + 1}',
           description: 'A premium luxury skincare solution.',
-          price: 45.0 + index,
+          price: 45.0 + (index * 5) % 100, // Vary price for testing sort
           originalPrice: 60.0 + index,
-          rating: 4.5,
-          reviewCount: 120,
+          rating: (4.0 + (index % 5) * 0.2).clamp(0, 5),
+          reviewCount: 10 + (index * 20),
           imageUrl: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=200&auto=format&fit=crop',
           isAvailable: true,
         ),
       );
+
+      // Apply Filter Logic (locally for mock data)
+      newProducts = newProducts.where((p) => p.price >= filter.minPrice && p.price <= filter.maxPrice).toList();
+
+      // Apply Sort Logic
+      switch (filter.sortBy) {
+        case 'price_low':
+          newProducts.sort((a, b) => a.price.compareTo(b.price));
+          break;
+        case 'price_high':
+          newProducts.sort((a, b) => b.price.compareTo(a.price));
+          break;
+        case 'rating':
+          newProducts.sort((a, b) => b.rating.compareTo(a.rating));
+          break;
+        case 'newest':
+        default:
+          // For mock, newest is just descending ID
+          newProducts.sort((a, b) => b.id.compareTo(a.id));
+          break;
+      }
 
       state = state.copyWith(
         products: [...state.products, ...newProducts],

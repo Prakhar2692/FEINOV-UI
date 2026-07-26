@@ -16,6 +16,13 @@ class Product with _$Product {
     @Default(0) int reviewCount,
     @Default(false) bool isAvailable,
     @Default(false) bool isWishlisted,
+    @Default([]) List<String> images,
+    @Default([]) List<String> variants,
+    @Default([]) List<String> ingredients,
+    @Default([]) List<String> benefits,
+    String? specialFeatures,
+    String? usageInstructions,
+    @Default([]) List<String> productInfo,
   }) = _Product;
 
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);

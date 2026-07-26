@@ -8,6 +8,7 @@ import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/categories/presentation/pages/subcategory_page.dart';
 import '../../features/products/presentation/pages/product_listing_page.dart';
+import '../../features/products/presentation/pages/product_details_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -64,6 +65,13 @@ GoRouter router(RouterRef ref) {
             subcategoryId: subcategoryId,
             title: title,
           );
+        },
+      ),
+      GoRoute(
+        path: '/product-details/:productId',
+        builder: (context, state) {
+          final productId = state.pathParameters['productId'] ?? '';
+          return ProductDetailsPage(productId: productId);
         },
       ),
       StatefulShellRoute.indexedStack(

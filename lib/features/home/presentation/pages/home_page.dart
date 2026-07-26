@@ -147,7 +147,7 @@ class HomePage extends ConsumerWidget {
                         return AppProductCard(
                           product: product,
                           brand: 'Feinov Premium',
-                          onTap: () {},
+                          onTap: () => context.push('/product-details/${product.id}'),
                         );
                       },
                       childCount: data.recommended.length,
@@ -297,7 +297,7 @@ class _ProductHorizontalList extends StatelessWidget {
               child: AppProductCard(
                 product: product,
                 brand: 'Feinov',
-                onTap: () {},
+                onTap: () => context.push('/product-details/${product.id}'),
               ),
             ),
           );
