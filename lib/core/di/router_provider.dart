@@ -9,6 +9,7 @@ import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/search/presentation/pages/search_page.dart';
 import '../widgets/main_wrapper.dart';
 
 part 'router_provider.g.dart';
@@ -35,6 +36,10 @@ GoRouter router(RouterRef ref) {
           final mobile = state.extra as String? ?? '';
           return OtpPage(mobileNumber: mobile);
         },
+      ),
+      GoRoute(
+        path: '/search',
+        builder: (context, state) => const SearchPage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
