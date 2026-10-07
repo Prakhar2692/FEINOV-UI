@@ -3,7 +3,7 @@ import '../../../../core/services/payment_service.dart';
 
 part 'payment_controller.g.dart';
 
-enum PaymentStatus { initial, loading, success, failure, cancelled }
+enum PaymentStatus { initial, loading, success, failure, cancelled, timeout, declined }
 
 class PaymentState {
   final PaymentStatus status;
@@ -69,10 +69,21 @@ class PaymentController extends _$PaymentController {
         );
       },
       onFailure: (message) {
-        if (message.contains('cancelled')) {
+        final normalized = message.toLowerCase();
+        if (normalized.contains('cancel') || normalized.contains('aborted')) {
           state = state.copyWith(
             status: PaymentStatus.cancelled,
             message: 'Payment Cancelled',
+          );
+        } else if (normalized.contains('declined') || normalized.contains('card')) {
+          state = state.copyWith(
+            status: PaymentStatus.declined,
+            message: 'Card declined. Please try another method.',
+          );
+        } else if (normalized.contains('timeout') || normalized.contains('timed out')) {
+          state = state.copyWith(
+            status: PaymentStatus.timeout,
+            message: 'Payment timed out. Please retry.',
           );
         } else {
           state = state.copyWith(
