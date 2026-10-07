@@ -10,6 +10,5 @@ class AppValidations {
 
   static const String indianPhonePattern = r'^[6-9]\d{9}$';
 
-  static const String passwordPattern =
-      r'^(?=.*[A-Za-z])(?=.*\d).{8,}$';
+  static const String passwordPattern = r'^(?=.*[A-Za-z])(?=.*\d).{8,}$';
 }
