@@ -12,6 +12,8 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/cart/data/repositories/cart_repository_impl.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
+import '../../features/home/data/repositories/home_repository_impl.dart';
+import '../../features/home/domain/repositories/home_repository.dart';
 import '../../features/orders/data/repositories/order_repository_impl.dart';
 import '../../features/orders/domain/repositories/order_repository.dart';
 import '../../features/products/data/repositories/product_repository_impl.dart';
@@ -58,6 +60,10 @@ final cartRepositoryProvider = Provider<CartRepository>(
 
 final productRepositoryProvider = Provider<ProductRepository>(
   (ref) => ProductRepositoryImpl(ref.watch(appDioProvider)),
+);
+
+final homeRepositoryProvider = Provider<HomeRepository>(
+  (ref) => HomeRepositoryImpl(ref.watch(appDioProvider)),
 );
 
 final orderRepositoryProvider = Provider<OrderRepository>(
