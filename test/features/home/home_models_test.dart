@@ -6,10 +6,18 @@ void main() {
     test('HomePageData.fromJson maps API data into home sections', () {
       final data = HomePageData.fromJson({
         'banners': [
-          {'id': 'b1', 'title': 'Summer Glow', 'imageUrl': 'https://example.com/banner-1.jpg'},
+          {
+            'id': 'b1',
+            'title': 'Summer Glow',
+            'imageUrl': 'https://example.com/banner-1.jpg',
+          },
         ],
         'categories': [
-          {'id': 'c1', 'name': 'Skincare', 'imageUrl': 'https://example.com/c1.jpg'},
+          {
+            'id': 'c1',
+            'name': 'Skincare',
+            'imageUrl': 'https://example.com/c1.jpg',
+          },
         ],
         'featuredProducts': [
           {
