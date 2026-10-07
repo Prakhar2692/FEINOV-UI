@@ -1,24 +1,37 @@
-Design System Components:
+# System component design
 
-1. Foundational Constants:
-   - Colors (app_colors.dart): A luxury-focused palette featuring Deep Forest Green (primary), Muted Gold (secondary), and Soft Cream (background).
-   - Typography (app_typography.dart): Clean hierarchy using Serif fonts (Georgia fallback) for headlines to evoke a premium feel.
-   - Spacing (app_spacing.dart): Comprehensive scale for padding, margins, and soft rounded corners (Radius L/XL).
+This document summarizes the reusable app building blocks that power the FEINOV storefront interface.
 
-2. Core Theme (app_theme.dart):
-   - Full Material 3 configuration.
-   - Customized component themes for Buttons, Cards, Input Decoration, and AppBars.
+## 1. Foundational constants
 
-3. Reusable UI Components (lib/core/widgets/):
-   - AppButton: Supports primary and outlined styles with built-in loading state.
-   - AppTextField: Minimal design with soft corners and clear labeling.
-   - AppProductCard: Stacked layout with image, brand, name, and price; includes a favorite toggle.
-   - AppTopBar: Standardized header with automatic back button handling.
-   - AppLoadingIndicator: Branded circular progress indicator.
-   - AppShimmer: Customizable shimmer loaders, including a pre-built AppProductShimmer.
-   - AppBottomSheet: Elegant modal with a handle and customizable actions.
+- Colors: luxury palette with deep green, soft cream, warm neutrals, and muted gold accents
+- Typography: premium editorial hierarchy using Material typography and supporting serif-style emphasis where appropriate
+- Spacing: consistent 8-point scale for spacing and layout rhythm
+- Radius: soft corners for cards, chips, and surfaces
 
-Getting Started with the Design System:
-All widgets are built to be flexible and consistent with the luxury aesthetic. You can now use them across your feature modules.
+## 2. Core theme
 
-Note: I've added the shimmer package to your pubspec.yaml to support the skeleton loading states.
+The app theme is configured in `lib/core/theme/app_theme.dart` and is intentionally designed around Material 3 defaults with brand-specific overrides for card, button, input, and app bar surfaces.
+
+## 3. Reusable system components
+
+The following shared widgets are the foundation for feature UI:
+
+- `AppButton`: action CTA with loading and style variants
+- `AppTextField`: branded form input with spacing and icon conventions
+- `AppProductCard`: product tile for catalog grid layouts
+- `AppTopBar`: consistent screen header patterns
+- `AppShimmer`: loading skeletons for product cards and lists
+- `AppBottomSheet`: modal interaction layer for actions and filters
+- `CartBadge`: compact cart indicator used in app navigation
+
+## 4. Design and implementation guidance
+
+- Reuse shared widgets before creating custom screen-specific components.
+- Keep spacing and color decisions centralized in the core theme.
+- Favor consistent component combinations across catalog, search, cart, and profile screens.
+
+See also:
+
+- [Style.md](Style.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
