@@ -1,84 +1,60 @@
-# Design System & Style Guide
+# Design system and visual standards
 
-This document outlines the design system for the Feinov UI Skincare Application, built with Material 3.
+This project uses a premium skincare aesthetic built on Material 3. The design language focuses on calm luxury, clarity, and strong product storytelling.
 
-## 1. Design Language
-- **Aesthetic**: Premium, Minimal, Clean.
-- **Palette**: Deep Forest Green, Muted Gold, Soft Cream.
-- **Shape**: Soft rounded corners (16dp - 32dp).
+## Design language
 
-## 2. Foundations
+- Premium, minimal, and clean
+- Deep forest green as the primary brand color
+- Soft cream backgrounds and warm neutral surfaces
+- Rounded corners and generous spacing
+- Serif-inspired headings for a luxury editorial feel
 
-### Colors (`lib/core/theme/app_colors.dart`)
-| Name | Value | Usage |
-| :--- | :--- | :--- |
-| `primary` | `#2D4739` | Main brand color (Deep Green) |
-| `secondary` | `#D4AF37` | Accents and highlights (Muted Gold) |
-| `background` | `#FDFBFA` | Main app background (Soft Cream) |
-| `surface` | `#FFFFFF` | Cards and elevated elements |
-| `surfaceVariant` | `#F2EFE9` | Subtle background for image containers |
-| `error` | `#BA1A1A` | Error states |
+## Foundations
 
-### Typography (`lib/core/theme/app_typography.dart`)
-Uses Serif (Georgia) for headings to provide a luxury feel and Sans-Serif for body text.
-- **Display Large**: 57pt (Hero text)
-- **Headline Large**: 32pt (Page titles)
-- **Headline Medium**: 28pt (Section headers)
-- **Title Large**: 22pt (Sub-headers)
-- **Body Large**: 16pt (Primary body text)
-- **Label Small**: 11pt (Badges and small uppercase labels)
+### Colors
 
-### Spacing (`lib/core/constants/app_spacing.dart`)
-- **Base Unit**: 8dp
-- **Scale**: `xs: 4`, `s: 8`, `m: 16`, `l: 24`, `xl: 32`, `xxl: 48`
-- **Border Radius**: `radiusM: 8`, `radiusL: 16`, `radiusXL: 24`, `radiusXXL: 32`
+The app color system is centralized in `lib/core/theme/app_colors.dart`.
 
----
+- `primary`: deep green brand tone
+- `secondary`: muted gold accent
+- `background`: soft cream canvas
+- `surface`: white for cards and elevated surfaces
+- `surfaceVariant`: subtle neutral containers
+- `error`: validation and destructive states
 
-## 3. Reusable Widgets
+### Typography
 
-### `AppButton`
-A standard button supporting primary (Elevated) and secondary (Outlined) styles.
-- **Features**: Automatic loading indicator support.
-- **Usage**:
-  ```dart
-  AppButton(
-    text: 'Add to Cart',
-    onPressed: () => print('Pressed'),
-    isLoading: false,
-  )
-  ```
+The type scale is defined in the app theme layer and is intended to support a premium commerce UI without compromising readability.
 
-### `AppTextField`
-Clean input fields with integrated labels.
-- **Features**: Password masking, validation, and prefix/suffix icons.
-- **Style**: Filled with soft rounded borders.
+### Spacing and radius
 
-### `AppProductCard`
-A specialized card for skincare products.
-- **Includes**: Brand (uppercase), Name, Price, and Favorite button.
-- **Visuals**: Uses `surfaceVariant` for the image background to create subtle contrast.
+The spacing scale is intentionally consistent across the app and is centralized in `lib/core/constants/app_spacing.dart`.
 
-### `AppTopBar`
-Standardized App Bar for the project.
-- **Features**: Center-aligned titles and automatic back-button handling.
+- `xs`: 4
+- `s`: 8
+- `m`: 16
+- `l`: 24
+- `xl`: 32
+- `xxl`: 48
 
-### `AppLoadingIndicator`
-Custom branded `CircularProgressIndicator` following the primary color scheme.
+## Shared UI components
 
-### `AppShimmer`
-Skeleton loaders for smooth data fetching UX.
-- **`AppShimmer`**: Base rectangular shimmer.
-- **`AppProductShimmer`**: Pre-composed skeleton that matches the `AppProductCard` layout.
+Reusable widgets are implemented in `lib/core/widgets` and should be used before custom one-offs are introduced.
 
-### `AppBottomSheet`
-Premium modal bottom sheet with a handle and flexible action area.
-- **Entry point**: `AppBottomSheet.show(context: ..., title: ..., child: ...)`
+- `AppButton`
+- `AppTextField`
+- `AppProductCard`
+- `AppShimmer`
+- `AppTopBar`
+- `AppBottomSheet`
+- `CartBadge`
 
----
+## Implementation note
 
-## 4. Theme Configuration (`lib/core/theme/app_theme.dart`)
-The `AppTheme.lightTheme` getter configures the global `ThemeData`:
-- Enables **Material 3**.
-- Configures `ColorScheme` based on `AppColors`.
-- Sets global styles for `CardTheme`, `InputDecorationTheme`, and `ButtonThemes` to ensure consistency without manual styling.
+The visual system is intended to be consistent across the catalog, product, search, cart, and profile flows. New UI should follow the same spacing scale, shape language, and brand colors.
+
+See also:
+
+- [README.md](README.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
