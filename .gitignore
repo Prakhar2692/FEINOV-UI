@@ -4,32 +4,20 @@
 *.log
 *.pyc
 *.swp
+*.swo
+*~
 .buildlog/
 .history
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.iml
 
-
-
-# Flutter repo-specific
-/bin/cache/
-/bin/internal/bootstrap.bat
-/bin/internal/bootstrap.sh
-/bin/mingit/
-/dev/benchmarks/mega_gallery/
-/dev/bots/.recipe_deps
-/dev/bots/android_tools/
-/dev/devicelab/ABresults*.json
-/dev/docs/doc/
-/dev/docs/flutter.docs.zip
-/dev/docs/lib/
-/dev/docs/pubspec.yaml
-/dev/integration_tests/**/xcuserdata
-/dev/integration_tests/**/Pods
-/packages/flutter/coverage/
-version
-analysis_benchmark.json
-
-# packages file containing multi-root paths
-.packages.generated
+# Flutter/Dart generated files (CRITICAL)
+*.g.dart
+*.freezed.dart
+*.chopper.dart
+*.config.dart
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -46,6 +34,22 @@ linked_*.ds
 unlinked.ds
 unlinked_spec.ds
 
+# Environment & Configuration
+.env
+.env.*
+!.env.example
+config/
+local_config.dart
+secret_config.dart
+
+# IDE and Editor
+.vscode/
+.idea/
+*.code-workspace
+*.sublime-workspace
+*.sublime-project
+out/
+
 # Android related
 **/android/**/gradle-wrapper.jar
 .gradle/
@@ -55,7 +59,12 @@ unlinked_spec.ds
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
+**/.gradle/
+**/android/.gradle/
+**/android/build/
+**/android/.cxx/
 *.jks
+*.keystore
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
@@ -70,6 +79,7 @@ unlinked_spec.ds
 **/ios/**/DerivedData/
 **/ios/**/Icon?
 **/ios/**/Pods/
+**/ios/Podfile.lock
 **/ios/**/.symlinks/
 **/ios/**/profile
 **/ios/**/xcuserdata
@@ -90,27 +100,51 @@ unlinked_spec.ds
 # macOS
 **/Flutter/ephemeral/
 **/Pods/
+**/Podfile.lock
 **/macos/Flutter/GeneratedPluginRegistrant.swift
 **/macos/Flutter/ephemeral
+**/macos/Flutter/Flutter.framework
 **/xcuserdata/
 
 # Windows
 **/windows/flutter/generated_plugin_registrant.cc
 **/windows/flutter/generated_plugin_registrant.h
 **/windows/flutter/generated_plugins.cmake
+**/windows/build/
 
 # Linux
 **/linux/flutter/generated_plugin_registrant.cc
 **/linux/flutter/generated_plugin_registrant.h
 **/linux/flutter/generated_plugins.cmake
+**/linux/build/
 
 # Coverage
 coverage/
+.coverage
+*.lcov
+.nyc_output/
 
 # Symbols
 app.*.symbols
 
-# Exceptions to above rules.
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.tmp.*
+~*
+\#*\#
+.\#*
+
+# Secrets and API keys
+.api_keys
+*.pem
+*.key
+*.p12
+*.p8
+.secrets
+
+# Exceptions to above rules
 !**/ios/**/default.mode1v3
 !**/ios/**/default.mode2v3
 !**/ios/**/default.pbxuser
