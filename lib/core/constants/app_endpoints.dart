@@ -13,6 +13,10 @@ class AppEndpoints {
   static const String authVerifyEmail = '/auth/verify-email';
   static const String authSession = '/auth/session';
   static const String authLogout = '/auth/logout';
+  static const String home = '/home';
+  static const String homeBanners = '/home/banners';
+  static const String homeCategories = '/home/categories';
+  static const String homeFeaturedProducts = '/home/products/featured';
   static const String products = '/products';
   static const String categories = '/categories';
   static const String cart = '/cart';
