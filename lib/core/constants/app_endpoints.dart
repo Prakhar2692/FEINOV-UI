@@ -1,7 +1,9 @@
+import '../config/app_environment.dart';
+
 class AppEndpoints {
   const AppEndpoints._();
 
-  static const String baseUrl = 'https://api.skincare.com/v1';
+  static String get baseUrl => AppEnvironment.current.baseUrl;
   static const String mockBaseUrl = 'https://api.mock.skincare.test/v1';
 
   static const String authLogin = '/auth/login';
