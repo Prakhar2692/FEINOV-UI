@@ -142,7 +142,7 @@ class AddAddressPage extends HookConsumerWidget {
                 value: isDefault.value,
                 onChanged: (val) => isDefault.value = val,
                 contentPadding: EdgeInsets.zero,
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               ),
               const SizedBox(height: AppSpacing.xxl),
             ],

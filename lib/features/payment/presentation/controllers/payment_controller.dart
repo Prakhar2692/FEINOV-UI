@@ -1,5 +1,5 @@
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/services/payment_service.dart';
 
 part 'payment_controller.g.dart';
 
@@ -33,17 +33,14 @@ class PaymentState {
 
 @riverpod
 class PaymentController extends _$PaymentController {
-  late Razorpay _razorpay;
+  late PaymentService _paymentService;
 
   @override
   PaymentState build() {
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-
+    _paymentService = PaymentService();
+    
     ref.onDispose(() {
-      _razorpay.clear();
+      _paymentService.clear();
     });
 
     return PaymentState.initial();
@@ -58,56 +55,35 @@ class PaymentController extends _$PaymentController {
   }) {
     state = state.copyWith(status: PaymentStatus.loading);
 
-    var options = {
-      'key': 'rzp_test_YOUR_KEY_HERE', // Replace with actual key
-      'amount': (amount * 100).toInt(), // in paise
-      'name': name,
-      'description': description,
-      'prefill': {'contact': contact, 'email': email},
-      'external': {
-        'wallets': ['paytm']
-      }
-    };
-
-    try {
-      _razorpay.open(options);
-    } catch (e) {
-      state = state.copyWith(
-        status: PaymentStatus.failure,
-        message: e.toString(),
-      );
-    }
-  }
-
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    state = state.copyWith(
-      status: PaymentStatus.success,
-      paymentId: response.paymentId,
-      message: 'Payment Successful',
+    _paymentService.openCheckout(
+      amount: amount,
+      name: name,
+      description: description,
+      email: email,
+      contact: contact,
+      onSuccess: (paymentId) {
+        state = state.copyWith(
+          status: PaymentStatus.success,
+          paymentId: paymentId,
+          message: 'Payment Successful',
+        );
+      },
+      onFailure: (message) {
+        if (message.contains('cancelled')) {
+          state = state.copyWith(
+            status: PaymentStatus.cancelled,
+            message: 'Payment Cancelled',
+          );
+        } else {
+          state = state.copyWith(
+            status: PaymentStatus.failure,
+            message: message,
+          );
+        }
+      },
     );
   }
 
-  void _handlePaymentError(PaymentFailureResponse response) {
-    if (response.code == Razorpay.PAYMENT_CANCELLED) {
-      state = state.copyWith(
-        status: PaymentStatus.cancelled,
-        message: 'Payment Cancelled',
-      );
-    } else {
-      state = state.copyWith(
-        status: PaymentStatus.failure,
-        message: response.message ?? 'Payment Failed',
-      );
-    }
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    state = state.copyWith(
-      status: PaymentStatus.success,
-      message: 'External Wallet Selected: ${response.walletName}',
-    );
-  }
-  
   void reset() {
     state = PaymentState.initial();
   }

@@ -19,10 +19,7 @@ class CartPage extends ConsumerWidget {
     final cartNotifier = ref.read(cartControllerProvider.notifier);
 
     return Scaffold(
-      appBar: const AppTopBar(
-        title: 'Shopping Cart',
-        showBackButton: true,
-      ),
+      appBar: const AppTopBar(title: 'Shopping Cart', showBackButton: true),
       body: cartState.when(
         loading: () => const Center(child: AppLoadingIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
@@ -39,10 +36,12 @@ class CartPage extends ConsumerWidget {
                   child: ListView(
                     padding: const EdgeInsets.all(AppSpacing.l),
                     children: [
-                      ...items.map((item) => Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.m),
-                        child: CartItemTile(item: item),
-                      )),
+                      ...items.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.m),
+                          child: CartItemTile(item: item),
+                        ),
+                      ),
                       const SizedBox(height: AppSpacing.m),
                       _CouponSection(),
                       const SizedBox(height: AppSpacing.xl),
@@ -72,7 +71,11 @@ class _EmptyCartView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.shopping_cart_outlined, size: 80, color: AppColors.divider),
+          const Icon(
+            Icons.shopping_cart_outlined,
+            size: 80,
+            color: AppColors.divider,
+          ),
           const SizedBox(height: AppSpacing.m),
           Text(
             'Your cart is empty',
@@ -85,9 +88,7 @@ class _EmptyCartView extends StatelessWidget {
             width: 200,
             child: AppButton(
               text: 'Shop Now',
-              onPressed: () {
-                // Navigate to home or shop
-              },
+              onPressed: () => context.go('/home'),
             ),
           ),
         ],
@@ -104,16 +105,14 @@ class _CouponSection extends StatelessWidget {
       children: [
         Text(
           'Promotions',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            const Expanded(
-              child: AppTextField(
-                hint: 'Enter promo code',
-              ),
-            ),
+            const Expanded(child: AppTextField(hint: 'Enter promo code')),
             const SizedBox(width: AppSpacing.m),
             SizedBox(
               width: 100,
@@ -156,9 +155,15 @@ class _CartSummary extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _SummaryRow(label: 'Subtotal', value: '\$${subtotal.toStringAsFixed(2)}'),
+          _SummaryRow(
+            label: 'Subtotal',
+            value: '\$${subtotal.toStringAsFixed(2)}',
+          ),
           const SizedBox(height: 12),
-          _SummaryRow(label: 'Shipping', value: '\$${shipping.toStringAsFixed(2)}'),
+          _SummaryRow(
+            label: 'Shipping',
+            value: '\$${shipping.toStringAsFixed(2)}',
+          ),
           const SizedBox(height: 12),
           _SummaryRow(label: 'Tax', value: '\$0.00'),
           const Divider(height: 32),
@@ -192,17 +197,21 @@ class _SummaryRow extends StatelessWidget {
         Text(
           label,
           style: isTotal
-              ? Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)
+              ? Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)
               : Theme.of(context).textTheme.bodyLarge,
         ),
         Text(
           value,
           style: isTotal
               ? Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  )
-              : Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                )
+              : Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -235,13 +244,16 @@ class _StickyCheckoutBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Total Payable', style: Theme.of(context).textTheme.labelSmall),
+                Text(
+                  'Total Payable',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
                 Text(
                   '\$${total.toStringAsFixed(2)}',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
                 ),
               ],
             ),

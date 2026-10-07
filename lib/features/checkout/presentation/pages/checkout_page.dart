@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_top_bar.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../../profile/presentation/controllers/address_controller.dart';
 import '../controllers/checkout_controller.dart';
+import '../../../payment/presentation/controllers/payment_controller.dart';
 import '../../../profile/domain/models/address.dart';
 
 class CheckoutPage extends ConsumerWidget {
@@ -16,6 +17,7 @@ class CheckoutPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final checkoutState = ref.watch(checkoutControllerProvider);
+    final paymentState = ref.watch(paymentControllerProvider);
     final checkoutNotifier = ref.read(checkoutControllerProvider.notifier);
     final cartNotifier = ref.read(cartControllerProvider.notifier);
 
@@ -26,6 +28,15 @@ class CheckoutPage extends ConsumerWidget {
         if (defaultAddr != null) {
           checkoutNotifier.selectAddress(defaultAddr);
         }
+      }
+    });
+
+    // Listen for Payment Results
+    ref.listen(paymentControllerProvider, (previous, next) {
+      if (next.status == PaymentStatus.success || 
+          next.status == PaymentStatus.failure || 
+          next.status == PaymentStatus.cancelled) {
+        context.push('/payment-result');
       }
     });
 
@@ -68,23 +79,25 @@ class CheckoutPage extends ConsumerWidget {
       ),
       bottomNavigationBar: _StickyPlaceOrderBar(
         total: cartNotifier.total,
-        isLoading: checkoutState.isPlacingOrder,
-        onPressed: () async {
-          final messenger = ScaffoldMessenger.of(context);
-          final goRouter = GoRouter.of(context);
-          
-          final success = await checkoutNotifier.placeOrder();
-          
-          if (success) {
-             messenger.showSnackBar(
-              const SnackBar(content: Text('Order placed successfully!')),
-            );
-            goRouter.go('/home');
-          } else {
-            messenger.showSnackBar(
+        isLoading: checkoutState.isPlacingOrder || paymentState.status == PaymentStatus.loading,
+        onPressed: () {
+          if (checkoutState.selectedAddress == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Please select an address')),
             );
+            return;
           }
+
+          final paymentNotifier = ref.read(paymentControllerProvider.notifier);
+          
+          // Start Razorpay Payment
+          paymentNotifier.startPayment(
+            amount: cartNotifier.total,
+            name: 'FEINOV',
+            description: 'Luxury Skincare Purchase',
+            email: 'user@example.com',
+            contact: checkoutState.selectedAddress!.phoneNumber,
+          );
         },
       ),
     );
@@ -171,6 +184,7 @@ class _PaymentMethodsSection extends StatelessWidget {
             onChanged: onChanged,
             title: const Text('UPI'),
             secondary: const Icon(Icons.account_balance_wallet_outlined),
+            activeColor: AppColors.primary,
           ),
           const Divider(height: 1, indent: 56),
           RadioListTile<PaymentMethod>(
@@ -179,6 +193,7 @@ class _PaymentMethodsSection extends StatelessWidget {
             onChanged: onChanged,
             title: const Text('Credit Card'),
             secondary: const Icon(Icons.credit_card_outlined),
+            activeColor: AppColors.primary,
           ),
           const Divider(height: 1, indent: 56),
           RadioListTile<PaymentMethod>(
@@ -187,6 +202,7 @@ class _PaymentMethodsSection extends StatelessWidget {
             onChanged: onChanged,
             title: const Text('Debit Card'),
             secondary: const Icon(Icons.credit_card),
+            activeColor: AppColors.primary,
           ),
         ],
       ),

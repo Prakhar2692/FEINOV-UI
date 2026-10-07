@@ -1,4 +1,4 @@
-import 'dart:convert';
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
 import 'payment_service.dart';
 
@@ -15,30 +15,38 @@ class PaymentServiceWeb implements PaymentService {
     required Function(String) onSuccess,
     required Function(String) onFailure,
   }) {
-    Map<String, dynamic> options = {
-      'key': 'rzp_test_YOUR_KEY_HERE',
+    final options = {
+      'key': 'rzp_test_YOUR_KEY_HERE', // MUST BE A VALID KEY
       'amount': (amount * 100).toInt(),
       'name': name,
       'description': description,
       'prefill': {
         'contact': contact,
         'email': email
+      },
+      'theme': {
+        'color': '#2D4739'
       }
     };
 
-    js.context.callMethod('openRazorpayPay', [
-      jsonEncode(options),
-      js.allowInterop((successResponse) {
-        onSuccess(successResponse.toString());
-      }),
-      js.allowInterop((errorResponse) {
-        onFailure(errorResponse.toString());
-      }),
-    ]);
+    try {
+      // jsify converts the Dart Map to a native JS Object
+      final jsOptions = js.JsObject.jsify(options);
+
+      js.context.callMethod('openRazorpayPay', [
+        jsOptions,
+        // ignore: undefined_function
+        js.allowInterop(onSuccess),
+        // ignore: undefined_function
+        js.allowInterop(onFailure),
+      ]);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Razorpay Web Call Error: $e');
+      onFailure(e.toString());
+    }
   }
 
   @override
-  void clear() {
-    // No-op for web
-  }
+  void clear() {}
 }
