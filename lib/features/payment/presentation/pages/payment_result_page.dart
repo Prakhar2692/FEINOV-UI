@@ -76,12 +76,12 @@ class PaymentResultPage extends ConsumerWidget {
       case PaymentStatus.success:
         icon = Icons.check_circle_outline;
         color = Colors.green;
-        break;
       case PaymentStatus.failure:
       case PaymentStatus.cancelled:
+      case PaymentStatus.declined:
+      case PaymentStatus.timeout:
         icon = Icons.error_outline;
         color = AppColors.error;
-        break;
       default:
         icon = Icons.payment;
         color = AppColors.primary;
@@ -98,6 +98,10 @@ class PaymentResultPage extends ConsumerWidget {
         return 'Payment Failed';
       case PaymentStatus.cancelled:
         return 'Payment Cancelled';
+      case PaymentStatus.declined:
+        return 'Card Declined';
+      case PaymentStatus.timeout:
+        return 'Payment Timed Out';
       default:
         return 'Processing Payment';
     }
@@ -105,8 +109,12 @@ class PaymentResultPage extends ConsumerWidget {
 
   Color _getColor(PaymentStatus status) {
     if (status == PaymentStatus.success) return Colors.green;
-    if (status == PaymentStatus.failure || status == PaymentStatus.cancelled)
+    if (status == PaymentStatus.failure ||
+        status == PaymentStatus.cancelled ||
+        status == PaymentStatus.declined ||
+        status == PaymentStatus.timeout) {
       return AppColors.error;
+    }
     return AppColors.primary;
   }
 }

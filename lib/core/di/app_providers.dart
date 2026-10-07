@@ -20,8 +20,16 @@ import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 import '../../features/orders/data/repositories/order_repository_impl.dart';
 import '../../features/orders/domain/repositories/order_repository.dart';
+import '../../features/payment/data/repositories/payment_repository_impl.dart';
+import '../../features/payment/domain/repositories/payment_repository.dart';
 import '../../features/products/data/repositories/product_repository_impl.dart';
 import '../../features/products/domain/repositories/product_repository.dart';
+import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/search/data/repositories/search_repository_impl.dart';
+import '../../features/search/domain/repositories/search_repository.dart';
+import '../../features/wishlist/data/repositories/wishlist_repository_impl.dart';
+import '../../features/wishlist/domain/repositories/wishlist_repository.dart';
 
 final appLoggerProvider = Provider<AppLogger>((ref) => AppLogger.instance);
 
@@ -80,4 +88,20 @@ final checkoutRepositoryProvider = Provider<CheckoutRepository>(
 
 final orderRepositoryProvider = Provider<OrderRepository>(
   (ref) => OrderRepositoryImpl(ref.watch(appDioProvider)),
+);
+
+final paymentRepositoryProvider = Provider<PaymentRepository>(
+  (ref) => PaymentRepositoryImpl(ref.watch(appDioProvider)),
+);
+
+final profileRepositoryProvider = Provider<ProfileRepository>(
+  (ref) => ProfileRepositoryImpl(ref.watch(appDioProvider)),
+);
+
+final searchRepositoryProvider = Provider<SearchRepository>(
+  (ref) => SearchRepositoryImpl(ref.watch(appDioProvider)),
+);
+
+final wishlistRepositoryProvider = Provider<WishlistRepository>(
+  (ref) => WishlistRepositoryImpl(ref.watch(appDioProvider)),
 );

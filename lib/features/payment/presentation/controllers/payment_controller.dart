@@ -3,18 +3,22 @@ import '../../../../core/services/payment_service.dart';
 
 part 'payment_controller.g.dart';
 
-enum PaymentStatus { initial, loading, success, failure, cancelled }
+enum PaymentStatus {
+  initial,
+  loading,
+  success,
+  failure,
+  cancelled,
+  timeout,
+  declined,
+}
 
 class PaymentState {
   final PaymentStatus status;
   final String? message;
   final String? paymentId;
 
-  PaymentState({
-    required this.status,
-    this.message,
-    this.paymentId,
-  });
+  PaymentState({required this.status, this.message, this.paymentId});
 
   factory PaymentState.initial() => PaymentState(status: PaymentStatus.initial);
 
@@ -38,7 +42,7 @@ class PaymentController extends _$PaymentController {
   @override
   PaymentState build() {
     _paymentService = PaymentService();
-    
+
     ref.onDispose(() {
       _paymentService.clear();
     });
@@ -69,10 +73,23 @@ class PaymentController extends _$PaymentController {
         );
       },
       onFailure: (message) {
-        if (message.contains('cancelled')) {
+        final normalized = message.toLowerCase();
+        if (normalized.contains('cancel') || normalized.contains('aborted')) {
           state = state.copyWith(
             status: PaymentStatus.cancelled,
             message: 'Payment Cancelled',
+          );
+        } else if (normalized.contains('declined') ||
+            normalized.contains('card')) {
+          state = state.copyWith(
+            status: PaymentStatus.declined,
+            message: 'Card declined. Please try another method.',
+          );
+        } else if (normalized.contains('timeout') ||
+            normalized.contains('timed out')) {
+          state = state.copyWith(
+            status: PaymentStatus.timeout,
+            message: 'Payment timed out. Please retry.',
           );
         } else {
           state = state.copyWith(
