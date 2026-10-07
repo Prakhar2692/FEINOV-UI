@@ -19,7 +19,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<UserProfile> updateProfile({required Map<String, dynamic> payload}) async {
+  Future<UserProfile> updateProfile({
+    required Map<String, dynamic> payload,
+  }) async {
     final response = await dio.patch(AppEndpoints.profile, data: payload);
     final data = response.data is Map<String, dynamic>
         ? Map<String, dynamic>.from(response.data)
@@ -30,7 +32,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<List<Address>> fetchAddresses() async {
     final response = await dio.get(AppEndpoints.addresses);
-    final items = response.data['items'] as List? ?? response.data as List? ?? const [];
+    final items =
+        response.data['items'] as List? ?? response.data as List? ?? const [];
     return items
         .map((item) => Address.fromJson(Map<String, dynamic>.from(item as Map)))
         .toList();

@@ -98,12 +98,21 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     final rawItems = (json['items'] as List? ?? const [])
-        .map((item) => OrderItem.fromJson(Map<String, dynamic>.from(item as Map)))
+        .map(
+          (item) => OrderItem.fromJson(Map<String, dynamic>.from(item as Map)),
+        )
         .toList();
 
     return Order(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
-      createdAt: DateTime.tryParse((json['createdAt'] ?? json['date'] ?? DateTime.now().toIso8601String()).toString()) ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(
+            (json['createdAt'] ??
+                    json['date'] ??
+                    DateTime.now().toIso8601String())
+                .toString(),
+          ) ??
+          DateTime.now(),
       total: (json['total'] ?? json['amount'] ?? 0.0).toDouble(),
       status: OrderStatus.fromApiValue(json['status']?.toString()),
       items: rawItems,

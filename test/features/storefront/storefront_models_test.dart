@@ -33,7 +33,7 @@ void main() {
         'email': 'aditi@example.com',
         'phone': '+91 98765 43210',
         'addresses': [
-          {'id': 'a_1', 'label': 'Home', 'city': 'Bengaluru'}
+          {'id': 'a_1', 'label': 'Home', 'city': 'Bengaluru'},
         ],
       });
 

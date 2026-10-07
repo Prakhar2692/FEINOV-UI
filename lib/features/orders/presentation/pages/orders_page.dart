@@ -20,8 +20,18 @@ class _OrdersPageState extends State<OrdersPage> {
       total: 1680.0,
       status: OrderStatus.shipped,
       items: const [
-        OrderItem(id: 'i1', name: 'Hydra Glow Serum', quantity: 1, price: 980.0),
-        OrderItem(id: 'i2', name: 'Barrier Repair Cream', quantity: 1, price: 700.0),
+        OrderItem(
+          id: 'i1',
+          name: 'Hydra Glow Serum',
+          quantity: 1,
+          price: 980.0,
+        ),
+        OrderItem(
+          id: 'i2',
+          name: 'Barrier Repair Cream',
+          quantity: 1,
+          price: 700.0,
+        ),
       ],
       shippingAddress: '24 Residency Road, Bengaluru',
       trackingNumber: 'INTRK74213',
@@ -32,7 +42,12 @@ class _OrdersPageState extends State<OrdersPage> {
       total: 1299.0,
       status: OrderStatus.delivered,
       items: const [
-        OrderItem(id: 'i3', name: 'Vitamin C Dew Mask', quantity: 2, price: 649.5),
+        OrderItem(
+          id: 'i3',
+          name: 'Vitamin C Dew Mask',
+          quantity: 2,
+          price: 649.5,
+        ),
       ],
       shippingAddress: '9th Block, Koramangala, Bengaluru',
       trackingNumber: 'INTRK73122',
@@ -69,7 +84,10 @@ class _OrdersPageState extends State<OrdersPage> {
           SizedBox(
             height: 56,
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l, vertical: AppSpacing.m),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.l,
+                vertical: AppSpacing.m,
+              ),
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
                 final value = filters[index];
@@ -129,11 +147,16 @@ class _OrderCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Order ${order.id}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.s,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(999),
@@ -149,8 +172,14 @@ class _OrderCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(order.formattedDate, style: Theme.of(context).textTheme.bodyMedium),
-                Text('${order.itemCount} items', style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  order.formattedDate,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                Text(
+                  '${order.itemCount} items',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.s),
@@ -159,11 +188,15 @@ class _OrderCard extends StatelessWidget {
               children: [
                 Text(
                   'Total',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.hint),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(color: AppColors.hint),
                 ),
                 Text(
                   '₹${order.total.toStringAsFixed(0)}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
@@ -171,7 +204,9 @@ class _OrderCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.s),
               Text(
                 'Tracking: ${order.trackingNumber}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.hint),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.hint),
               ),
             ],
             const SizedBox(height: AppSpacing.m),

@@ -10,14 +10,20 @@ class SearchRepositoryImpl implements SearchRepository {
   final Dio dio;
 
   @override
-  Future<List<SearchResult>> search({required String query, int page = 1}) async {
+  Future<List<SearchResult>> search({
+    required String query,
+    int page = 1,
+  }) async {
     final response = await dio.get(
       AppEndpoints.products,
       queryParameters: {'q': query, 'page': page},
     );
 
     final items = (response.data['items'] as List? ?? const [])
-        .map((item) => SearchResult.fromJson(Map<String, dynamic>.from(item as Map)))
+        .map(
+          (item) =>
+              SearchResult.fromJson(Map<String, dynamic>.from(item as Map)),
+        )
         .toList();
 
     return items;
@@ -37,6 +43,8 @@ class SearchRepositoryImpl implements SearchRepository {
         .where((value) => value.isNotEmpty)
         .toList();
 
-    return items.isEmpty ? ['${query.trim()} serum', '${query.trim()} cleanser'] : items;
+    return items.isEmpty
+        ? ['${query.trim()} serum', '${query.trim()} cleanser']
+        : items;
   }
 }

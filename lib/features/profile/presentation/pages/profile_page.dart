@@ -112,16 +112,22 @@ class _ProfileHeader extends StatelessWidget {
             children: [
               Text(
                 profile.fullName,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
                 profile.email,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.hint),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: AppColors.hint),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 profile.phone ?? 'No phone added',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.hint),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.hint),
               ),
             ],
           ),

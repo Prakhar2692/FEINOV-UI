@@ -32,7 +32,13 @@ class Address {
     );
   }
 
-  String get fullAddress => [street, city, state, country, postalCode].where((value) => value.trim().isNotEmpty).join(', ');
+  String get fullAddress => [
+    street,
+    city,
+    state,
+    country,
+    postalCode,
+  ].where((value) => value.trim().isNotEmpty).join(', ');
 }
 
 class UserProfile {
@@ -70,5 +76,6 @@ class UserProfile {
     );
   }
 
-  String get fullName => [firstName, lastName].where((value) => value.trim().isNotEmpty).join(' ');
+  String get fullName =>
+      [firstName, lastName].where((value) => value.trim().isNotEmpty).join(' ');
 }

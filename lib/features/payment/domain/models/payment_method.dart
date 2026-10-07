@@ -37,7 +37,9 @@ class PaymentMethod {
 
   String get maskedDisplay {
     if (type == PaymentMethodType.card && last4 != null && last4!.isNotEmpty) {
-      final label = title.replaceAll(RegExp(r' ending in .*', caseSensitive: false), '').trim();
+      final label = title
+          .replaceAll(RegExp(r' ending in .*', caseSensitive: false), '')
+          .trim();
       return '$label •••• $last4';
     }
     return title;
@@ -68,14 +70,14 @@ class PaymentInitiationRequest {
   final String? paymentMethod;
 
   Map<String, dynamic> toJson() => {
-        'orderId': orderId,
-        'amount': amount,
-        'currency': currency,
-        'customerName': customerName,
-        'email': email,
-        'contact': contact,
-        'paymentMethod': paymentMethod,
-      };
+    'orderId': orderId,
+    'amount': amount,
+    'currency': currency,
+    'customerName': customerName,
+    'email': email,
+    'contact': contact,
+    'paymentMethod': paymentMethod,
+  };
 }
 
 class PaymentInitiationResult {
@@ -116,10 +118,10 @@ class PaymentVerificationRequest {
   final String signature;
 
   Map<String, dynamic> toJson() => {
-        'paymentId': paymentId,
-        'orderId': orderId,
-        'signature': signature,
-      };
+    'paymentId': paymentId,
+    'orderId': orderId,
+    'signature': signature,
+  };
 }
 
 class PaymentVerificationResult {
