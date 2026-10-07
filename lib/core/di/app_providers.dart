@@ -12,6 +12,10 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/cart/data/repositories/cart_repository_impl.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
+import '../../features/categories/data/repositories/category_repository_impl.dart';
+import '../../features/categories/domain/repositories/category_repository.dart';
+import '../../features/checkout/data/repositories/checkout_repository_impl.dart';
+import '../../features/checkout/domain/repositories/checkout_repository.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 import '../../features/orders/data/repositories/order_repository_impl.dart';
@@ -64,6 +68,14 @@ final productRepositoryProvider = Provider<ProductRepository>(
 
 final homeRepositoryProvider = Provider<HomeRepository>(
   (ref) => HomeRepositoryImpl(ref.watch(appDioProvider)),
+);
+
+final categoryRepositoryProvider = Provider<CategoryRepository>(
+  (ref) => CategoryRepositoryImpl(ref.watch(appDioProvider)),
+);
+
+final checkoutRepositoryProvider = Provider<CheckoutRepository>(
+  (ref) => CheckoutRepositoryImpl(ref.watch(appDioProvider)),
 );
 
 final orderRepositoryProvider = Provider<OrderRepository>(
