@@ -53,8 +53,8 @@ class CheckoutController extends _$CheckoutController {
     state = state.copyWith(isPlacingOrder: true);
 
     try {
-      final repository = ref.read(orderRepositoryProvider);
-      await repository.createOrder(
+      final repository = ref.read(checkoutRepositoryProvider);
+      await repository.placeOrder(
         payload: {
           'addressId': state.selectedAddress!.id,
           'paymentMethod': state.selectedPaymentMethod.name,
