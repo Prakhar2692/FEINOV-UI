@@ -15,6 +15,7 @@ class RegisterController extends _$RegisterController {
     required String firstName,
     required String lastName,
     required String email,
+    required String password,
     required String countryCode,
     required String mobileNumber,
   }) async {
@@ -26,6 +27,7 @@ class RegisterController extends _$RegisterController {
         firstName: firstName,
         lastName: lastName,
         email: email,
+        password: password,
         mobileNumber: mobileNumber,
         countryCode: countryCode,
       );
