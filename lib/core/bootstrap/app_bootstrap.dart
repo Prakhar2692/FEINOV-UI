@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../config/app_environment.dart';
+
 class AppLogger {
   AppLogger._();
 
@@ -66,6 +68,9 @@ class AppBootstrap {
       return true;
     };
 
+    AppLogger.instance.info(
+      'App initialized in ${AppEnvironment.current.name} mode',
+    );
     AppAnalytics(AppLogger.instance).initialize();
   }
 }

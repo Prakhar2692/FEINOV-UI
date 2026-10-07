@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../services/secure_storage_service.dart';
 import '../services/session_service.dart';
 import '../services/storage_service.dart';
 
@@ -69,7 +71,7 @@ final appSettingsProvider =
     );
 
 final storageServiceProvider = Provider<StorageService>(
-  (ref) => InMemoryStorageService(),
+  (ref) => kIsWeb ? InMemoryStorageService() : SecureStorageService(),
 );
 
 final sessionServiceProvider = Provider<SessionService>(
