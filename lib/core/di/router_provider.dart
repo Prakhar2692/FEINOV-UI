@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/presentation/pages/auth_screen.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
@@ -30,9 +32,38 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
 
 @riverpod
 GoRouter router(RouterRef ref) {
+  final authState = ref.watch(authControllerProvider);
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/landing',
+    redirect: (context, state) {
+      final isProtectedRoute =
+          state.matchedLocation == '/home' ||
+          state.matchedLocation.startsWith('/categories') ||
+          state.matchedLocation.startsWith('/wishlist') ||
+          state.matchedLocation.startsWith('/orders') ||
+          state.matchedLocation.startsWith('/profile') ||
+          state.matchedLocation == '/cart' ||
+          state.matchedLocation == '/checkout' ||
+          state.matchedLocation == '/payment-result';
+
+      final isAuthRoute =
+          state.matchedLocation == '/auth' ||
+          state.matchedLocation == '/landing' ||
+          state.matchedLocation == '/forgot-password' ||
+          state.matchedLocation == '/otp';
+
+      if (isProtectedRoute && !authState.isAuthenticated) {
+        return '/auth';
+      }
+
+      if (authState.isAuthenticated && isAuthRoute) {
+        return '/home';
+      }
+
+      return null;
+    },
     errorBuilder: (context, state) => AppErrorScreen(
       message: 'Page not found: ${state.matchedLocation}',
       onRetry: () => context.go('/home'),
@@ -44,6 +75,10 @@ GoRouter router(RouterRef ref) {
         builder: (context, state) => const SplashPage(),
       ),
       GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
       GoRoute(
         path: '/otp',
         builder: (context, state) {

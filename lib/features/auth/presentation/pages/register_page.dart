@@ -18,6 +18,8 @@ class RegisterPage extends HookConsumerWidget {
     final firstNameController = useTextEditingController();
     final lastNameController = useTextEditingController();
     final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    final confirmPasswordController = useTextEditingController();
     final mobileController = useTextEditingController();
     final countryCode = useState('91');
 
@@ -32,6 +34,8 @@ class RegisterPage extends HookConsumerWidget {
           firstNameController,
           lastNameController,
           emailController,
+          passwordController,
+          confirmPasswordController,
           mobileController,
           countryCode,
           registerState.isLoading,
@@ -46,6 +50,8 @@ class RegisterPage extends HookConsumerWidget {
               firstNameController,
               lastNameController,
               emailController,
+              passwordController,
+              confirmPasswordController,
               mobileController,
               countryCode,
               registerState.isLoading,
@@ -63,12 +69,16 @@ class RegisterPage extends HookConsumerWidget {
     TextEditingController firstNameController,
     TextEditingController lastNameController,
     TextEditingController emailController,
+    TextEditingController passwordController,
+    TextEditingController confirmPasswordController,
     TextEditingController mobileController,
     ValueNotifier<String> countryCode,
     bool isLoading,
     WidgetRef ref,
   ) {
-    final nameFormatter = FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]'));
+    final nameFormatter = FilteringTextInputFormatter.allow(
+      RegExp(r'[a-zA-Z]'),
+    );
 
     return Form(
       key: formKey,
@@ -119,10 +129,7 @@ class RegisterPage extends HookConsumerWidget {
             },
           ),
           const SizedBox(height: AppSpacing.m),
-          Text(
-            'Mobile Number',
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
+          Text('Mobile Number', style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +139,8 @@ class RegisterPage extends HookConsumerWidget {
                   showCountryPicker(
                     context: context,
                     showPhoneCode: true,
-                    onSelect: (Country country) => countryCode.value = country.phoneCode,
+                    onSelect: (Country country) =>
+                        countryCode.value = country.phoneCode,
                   );
                 },
                 child: Container(
@@ -143,9 +151,7 @@ class RegisterPage extends HookConsumerWidget {
                     border: Border.all(color: Theme.of(context).dividerColor),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusL),
                   ),
-                  child: Center(
-                    child: Text('+${countryCode.value}'),
-                  ),
+                  child: Center(child: Text('+${countryCode.value}')),
                 ),
               ),
               const SizedBox(width: AppSpacing.s),
@@ -153,9 +159,7 @@ class RegisterPage extends HookConsumerWidget {
                 child: TextFormField(
                   controller: mobileController,
                   keyboardType: TextInputType.phone,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(hintText: 'Phone number'),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Required';
@@ -166,19 +170,49 @@ class RegisterPage extends HookConsumerWidget {
               ),
             ],
           ),
+          const SizedBox(height: AppSpacing.m),
+          AppTextField(
+            label: 'Password',
+            hint: 'Create a strong password',
+            isPassword: true,
+            controller: passwordController,
+            validator: (value) {
+              if (value == null || value.isEmpty) return 'Password is required';
+              if (value.length < 8)
+                return 'Password must be at least 8 characters';
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.m),
+          AppTextField(
+            label: 'Confirm Password',
+            hint: 'Confirm password',
+            isPassword: true,
+            controller: confirmPasswordController,
+            validator: (value) {
+              if (value == null || value.isEmpty)
+                return 'Confirm your password';
+              if (value != passwordController.text)
+                return 'Passwords do not match';
+              return null;
+            },
+          ),
           const SizedBox(height: AppSpacing.xl),
           AppButton(
             text: 'Sign Up',
             isLoading: isLoading,
             onPressed: () {
               if (formKey.currentState?.validate() ?? false) {
-                ref.read(registerControllerProvider.notifier).register(
-                  firstName: firstNameController.text,
-                  lastName: lastNameController.text,
-                  email: emailController.text,
-                  countryCode: countryCode.value,
-                  mobileNumber: mobileController.text,
-                );
+                ref
+                    .read(registerControllerProvider.notifier)
+                    .register(
+                      firstName: firstNameController.text,
+                      lastName: lastNameController.text,
+                      email: emailController.text,
+                      password: passwordController.text,
+                      countryCode: countryCode.value,
+                      mobileNumber: mobileController.text,
+                    );
               }
             },
           ),
