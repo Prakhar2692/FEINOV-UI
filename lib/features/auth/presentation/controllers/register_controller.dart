@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/di/app_providers.dart';
+
 part 'register_controller.g.dart';
 
 @riverpod
@@ -17,12 +19,17 @@ class RegisterController extends _$RegisterController {
     required String mobileNumber,
   }) async {
     state = const AsyncValue.loading();
-    
+
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // On success
+      final repository = ref.read(authRepositoryProvider);
+      await repository.register(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        mobileNumber: mobileNumber,
+        countryCode: countryCode,
+      );
+
       state = const AsyncValue.data(null);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

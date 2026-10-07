@@ -13,10 +13,7 @@ import '../controllers/otp_controller.dart';
 class OtpPage extends HookConsumerWidget {
   final String mobileNumber;
 
-  const OtpPage({
-    super.key,
-    required this.mobileNumber,
-  });
+  const OtpPage({super.key, required this.mobileNumber});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,9 +48,9 @@ class OtpPage extends HookConsumerWidget {
       width: 56,
       height: 56,
       textStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
-          ),
+        color: AppColors.primary,
+        fontWeight: FontWeight.bold,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppSpacing.radiusL),
@@ -66,8 +63,9 @@ class OtpPage extends HookConsumerWidget {
       color: AppColors.surface,
     );
 
-    final bool isLoading = verificationState.status == OtpStatus.verifying || 
-                          verificationState.status == OtpStatus.resending;
+    final bool isLoading =
+        verificationState.status == OtpStatus.verifying ||
+        verificationState.status == OtpStatus.resending;
 
     return Scaffold(
       appBar: const AppTopBar(title: 'Verify OTP'),
@@ -130,8 +128,8 @@ class OtpPage extends HookConsumerWidget {
           'We have sent a 6-digit code to\n$mobileNumber',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: AppSpacing.xxl),
         Pinput(
@@ -143,7 +141,9 @@ class OtpPage extends HookConsumerWidget {
           focusedPinTheme: focusedPinTheme,
           hapticFeedbackType: HapticFeedbackType.lightImpact,
           onCompleted: (pin) {
-            ref.read(otpVerificationControllerProvider.notifier).verifyOtp(pin);
+            ref
+                .read(otpVerificationControllerProvider.notifier)
+                .verifyOtp(pin, mobileNumber: mobileNumber);
           },
           cursor: Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -191,7 +191,7 @@ class OtpPage extends HookConsumerWidget {
             if (otpController.text.length == 6) {
               ref
                   .read(otpVerificationControllerProvider.notifier)
-                  .verifyOtp(otpController.text);
+                  .verifyOtp(otpController.text, mobileNumber: mobileNumber);
             }
           },
         ),

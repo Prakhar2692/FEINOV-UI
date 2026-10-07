@@ -1,4 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../../core/di/app_providers.dart';
 import '../../domain/models/cart_item.dart';
 import '../../../home/domain/models/product.dart';
 
@@ -12,48 +14,57 @@ class CartController extends _$CartController {
   }
 
   Future<List<CartItem>> _fetchCart() async {
-    // Simulate API call for initial load
-    await Future.delayed(const Duration(seconds: 1));
-    return []; // Start with empty cart for a cleaner demo
+    final repository = ref.read(cartRepositoryProvider);
+    final items = await repository.getCartItems();
+    return items.map(CartItem.fromJson).toList();
   }
 
   Future<void> addItem(Product product) async {
+    final repository = ref.read(cartRepositoryProvider);
     final currentItems = state.value ?? [];
-    final existingIndex = currentItems.indexWhere((item) => item.product.id == product.id);
+    final existingIndex = currentItems.indexWhere(
+      (item) => item.product.id == product.id,
+    );
 
     if (existingIndex != -1) {
-      await updateQuantity(currentItems[existingIndex].id, currentItems[existingIndex].quantity + 1);
-    } else {
-      final newItem = CartItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        product: product,
-        quantity: 1,
+      await updateQuantity(
+        currentItems[existingIndex].id,
+        currentItems[existingIndex].quantity + 1,
       );
-      state = AsyncValue.data([...currentItems, newItem]);
+    } else {
+      await repository.addItem(productId: product.id, quantity: 1);
+      state = AsyncValue.data([...currentItems, ...await _fetchCart()]);
     }
   }
 
   Future<void> updateQuantity(String itemId, int quantity) async {
+    final repository = ref.read(cartRepositoryProvider);
     final currentItems = state.value ?? [];
     if (quantity <= 0) {
-      state = AsyncValue.data(currentItems.where((item) => item.id != itemId).toList());
+      await repository.removeItem(itemId);
+      state = AsyncValue.data(
+        currentItems.where((item) => item.id != itemId).toList(),
+      );
       return;
     }
-    
+
+    await repository.updateItem(itemId: itemId, quantity: quantity);
     final updatedItems = currentItems.map((item) {
       if (itemId == item.id) {
         return item.copyWith(quantity: quantity);
       }
       return item;
     }).toList();
-    
+
     state = AsyncValue.data(updatedItems);
   }
 
   Future<void> updateProductQuantity(Product product, int quantity) async {
     final currentItems = state.value ?? [];
-    final existingItem = currentItems.where((item) => item.product.id == product.id).firstOrNull;
-    
+    final existingItem = currentItems
+        .where((item) => item.product.id == product.id)
+        .firstOrNull;
+
     if (existingItem != null) {
       await updateQuantity(existingItem.id, quantity);
     } else if (quantity > 0) {
@@ -62,8 +73,12 @@ class CartController extends _$CartController {
   }
 
   Future<void> removeItem(String itemId) async {
+    final repository = ref.read(cartRepositoryProvider);
+    await repository.removeItem(itemId);
     final currentItems = state.value ?? [];
-    state = AsyncValue.data(currentItems.where((item) => item.id != itemId).toList());
+    state = AsyncValue.data(
+      currentItems.where((item) => item.id != itemId).toList(),
+    );
   }
 
   Future<void> refresh() async {
@@ -73,7 +88,10 @@ class CartController extends _$CartController {
 
   double get subtotal {
     final items = state.value ?? [];
-    return items.fold(0, (total, item) => total + (item.product.price * item.quantity));
+    return items.fold(
+      0,
+      (total, item) => total + (item.product.price * item.quantity),
+    );
   }
 
   double get total => subtotal + 5.0;

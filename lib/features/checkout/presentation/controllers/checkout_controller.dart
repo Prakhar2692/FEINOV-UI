@@ -1,4 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../../core/di/app_providers.dart';
 import '../../../profile/domain/models/address.dart';
 
 part 'checkout_controller.g.dart';
@@ -23,7 +25,8 @@ class CheckoutState {
   }) {
     return CheckoutState(
       selectedAddress: selectedAddress ?? this.selectedAddress,
-      selectedPaymentMethod: selectedPaymentMethod ?? this.selectedPaymentMethod,
+      selectedPaymentMethod:
+          selectedPaymentMethod ?? this.selectedPaymentMethod,
       isPlacingOrder: isPlacingOrder ?? this.isPlacingOrder,
     );
   }
@@ -46,11 +49,23 @@ class CheckoutController extends _$CheckoutController {
 
   Future<bool> placeOrder() async {
     if (state.selectedAddress == null) return false;
-    
+
     state = state.copyWith(isPlacingOrder: true);
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
-    state = state.copyWith(isPlacingOrder: false);
-    return true;
+
+    try {
+      final repository = ref.read(orderRepositoryProvider);
+      await repository.createOrder(
+        payload: {
+          'addressId': state.selectedAddress!.id,
+          'paymentMethod': state.selectedPaymentMethod.name,
+          'items': [],
+        },
+      );
+      state = state.copyWith(isPlacingOrder: false);
+      return true;
+    } catch (_) {
+      state = state.copyWith(isPlacingOrder: false);
+      return false;
+    }
   }
 }

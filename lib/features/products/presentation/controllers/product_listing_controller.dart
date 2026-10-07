@@ -1,4 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../../core/di/app_providers.dart';
 import '../../../../features/home/domain/models/product.dart';
 import 'product_filter_controller.dart';
 
@@ -40,7 +42,6 @@ class ProductListingState {
 class ProductListingController extends _$ProductListingController {
   @override
   ProductListingState build(String? subcategoryId) {
-    // Listen to filter changes to auto-apply them
     ref.listen(productFilterControllerProvider, (previous, next) {
       fetchProducts(isRefresh: true);
     });
@@ -55,34 +56,31 @@ class ProductListingController extends _$ProductListingController {
 
   Future<void> fetchProducts({bool isRefresh = false}) async {
     if (isRefresh) {
-      state = state.copyWith(isLoading: true, products: [], page: 1, hasMore: true);
+      state = state.copyWith(
+        isLoading: true,
+        products: [],
+        page: 1,
+        hasMore: true,
+      );
     }
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 1));
-
+      final repository = ref.read(productRepositoryProvider);
       final filter = ref.read(productFilterControllerProvider);
-
-      var newProducts = List.generate(
-        10,
-        (index) => Product(
-          id: 'prod_${state.products.length + index}',
-          name: 'Skincare Product ${state.products.length + index + 1}',
-          description: 'A premium luxury skincare solution.',
-          price: 45.0 + (index * 5) % 100, // Vary price for testing sort
-          originalPrice: 60.0 + index,
-          rating: (4.0 + (index % 5) * 0.2).clamp(0, 5),
-          reviewCount: 10 + (index * 20),
-          imageUrl: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=200&auto=format&fit=crop',
-          isAvailable: true,
-        ),
+      final items = await repository.getProducts(
+        categoryId: subcategoryId,
+        page: state.page,
+        limit: 10,
       );
 
-      // Apply Filter Logic (locally for mock data)
-      newProducts = newProducts.where((p) => p.price >= filter.minPrice && p.price <= filter.maxPrice).toList();
+      var newProducts = items.map(Product.fromJson).toList();
 
-      // Apply Sort Logic
+      newProducts = newProducts
+          .where(
+            (p) => p.price >= filter.minPrice && p.price <= filter.maxPrice,
+          )
+          .toList();
+
       switch (filter.sortBy) {
         case 'price_low':
           newProducts.sort((a, b) => a.price.compareTo(b.price));
@@ -95,17 +93,16 @@ class ProductListingController extends _$ProductListingController {
           break;
         case 'newest':
         default:
-          // For mock, newest is just descending ID
           newProducts.sort((a, b) => b.id.compareTo(a.id));
           break;
       }
 
       state = state.copyWith(
-        products: [...state.products, ...newProducts],
+        products: isRefresh ? newProducts : [...state.products, ...newProducts],
         isLoading: false,
         isLoadMore: false,
         page: state.page + 1,
-        hasMore: state.page < 5, // Mock 5 pages
+        hasMore: newProducts.length >= 10,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, isLoadMore: false);
@@ -114,7 +111,7 @@ class ProductListingController extends _$ProductListingController {
 
   Future<void> loadMore() async {
     if (state.isLoading || state.isLoadMore || !state.hasMore) return;
-    
+
     state = state.copyWith(isLoadMore: true);
     await fetchProducts();
   }
