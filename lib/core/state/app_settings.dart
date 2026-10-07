@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../services/session_service.dart';
+import '../services/storage_service.dart';
+
 class AppSettings {
   const AppSettings({
     this.isAuthenticated = false,
@@ -64,3 +67,11 @@ final appSettingsProvider =
     StateNotifierProvider<AppSettingsController, AppSettings>(
       (ref) => AppSettingsController(),
     );
+
+final storageServiceProvider = Provider<StorageService>(
+  (ref) => InMemoryStorageService(),
+);
+
+final sessionServiceProvider = Provider<SessionService>(
+  (ref) => SessionService(ref.watch(storageServiceProvider)),
+);
