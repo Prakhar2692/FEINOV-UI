@@ -1,42 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/auth_screen.dart';
 import '../../features/auth/presentation/pages/otp_page.dart';
+import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/categories/presentation/pages/subcategory_page.dart';
-import '../../features/products/presentation/pages/product_listing_page.dart';
-import '../../features/products/presentation/pages/product_details_page.dart';
-import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/checkout/presentation/pages/checkout_page.dart';
-import '../../features/wishlist/presentation/pages/wishlist_page.dart';
+import '../../features/checkout/presentation/pages/order_success_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
-import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/profile/presentation/pages/address_list_page.dart';
+import '../../features/payment/presentation/pages/payment_result_page.dart';
+import '../../features/products/presentation/pages/product_details_page.dart';
+import '../../features/products/presentation/pages/product_listing_page.dart';
 import '../../features/profile/presentation/pages/add_address_page.dart';
+import '../../features/profile/presentation/pages/address_list_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/search/presentation/pages/search_page.dart';
+import '../../features/wishlist/presentation/pages/wishlist_page.dart';
+import '../widgets/app_state_screens.dart';
 import '../widgets/main_wrapper.dart';
 
 part 'router_provider.g.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'root',
+);
 
 @riverpod
 GoRouter router(RouterRef ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/',
+    initialLocation: '/landing',
+    errorBuilder: (context, state) => AppErrorScreen(
+      message: 'Page not found: ${state.matchedLocation}',
+      onRetry: () => context.go('/home'),
+    ),
     routes: [
+      GoRoute(path: '/', redirect: (_, __) => '/landing'),
       GoRoute(
-        path: '/',
+        path: '/landing',
         builder: (context, state) => const SplashPage(),
       ),
-      GoRoute(
-        path: '/auth',
-        builder: (context, state) => const AuthScreen(),
-      ),
+      GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
       GoRoute(
         path: '/otp',
         builder: (context, state) {
@@ -44,17 +51,17 @@ GoRouter router(RouterRef ref) {
           return OtpPage(mobileNumber: mobile);
         },
       ),
-      GoRoute(
-        path: '/search',
-        builder: (context, state) => const SearchPage(),
-      ),
+      GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
       GoRoute(
         path: '/subcategories',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           final categoryId = extra?['categoryId'] as String? ?? '';
           final categoryName = extra?['categoryName'] as String? ?? 'Category';
-          return SubcategoryPage(categoryId: categoryId, categoryName: categoryName);
+          return SubcategoryPage(
+            categoryId: categoryId,
+            categoryName: categoryName,
+          );
         },
       ),
       GoRoute(
@@ -78,13 +85,18 @@ GoRouter router(RouterRef ref) {
           return ProductDetailsPage(productId: productId);
         },
       ),
-      GoRoute(
-        path: '/cart',
-        builder: (context, state) => const CartPage(),
-      ),
+      GoRoute(path: '/cart', builder: (context, state) => const CartPage()),
       GoRoute(
         path: '/checkout',
         builder: (context, state) => const CheckoutPage(),
+      ),
+      GoRoute(
+        path: '/payment-result',
+        builder: (context, state) => const PaymentResultPage(),
+      ),
+      GoRoute(
+        path: '/order-success',
+        builder: (context, state) => const OrderSuccessPage(),
       ),
       GoRoute(
         path: '/addresses',

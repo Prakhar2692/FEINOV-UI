@@ -14,8 +14,8 @@ class AppTheme {
         onPrimary: AppColors.onPrimary,
         secondary: AppColors.secondary,
         onSecondary: AppColors.onSecondary,
-        surface: AppColors.background, // background is deprecated
-        onSurface: AppColors.onBackground, // onBackground is deprecated
+        surface: AppColors.background,
+        onSurface: AppColors.onBackground,
         error: AppColors.error,
         onError: AppColors.onError,
       ),
@@ -46,7 +46,9 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusL),
           ),
-          textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.bold),
+          textStyle: AppTypography.labelLarge.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
           elevation: 0,
         ),
       ),
@@ -58,7 +60,9 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusL),
           ),
-          textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.bold),
+          textStyle: AppTypography.labelLarge.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -90,6 +94,41 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppSpacing.radiusL),
           side: const BorderSide(color: AppColors.divider, width: 0.5),
         ),
+      ),
+    );
+  }
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.primary,
+        onPrimary: AppColors.onPrimary,
+        secondary: AppColors.secondary,
+        onSecondary: AppColors.onSecondary,
+        surface: Color(0xFF111827),
+        onSurface: Color(0xFFE5E7EB),
+        error: AppColors.error,
+        onError: AppColors.onError,
+      ),
+      scaffoldBackgroundColor: const Color(0xFF0F172A),
+      textTheme: const TextTheme(
+        displayLarge: AppTypography.displayLarge,
+        headlineLarge: AppTypography.headlineLarge,
+        headlineMedium: AppTypography.headlineMedium,
+        titleLarge: AppTypography.titleLarge,
+        titleMedium: AppTypography.titleMedium,
+        bodyLarge: AppTypography.bodyLarge,
+        bodyMedium: AppTypography.bodyMedium,
+        labelLarge: AppTypography.labelLarge,
+        labelSmall: AppTypography.labelSmall,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF0F172A),
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: AppTypography.titleLarge,
+        iconTheme: IconThemeData(color: Color(0xFFE5E7EB)),
       ),
     );
   }

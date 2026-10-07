@@ -142,6 +142,7 @@ class ProductFilterBottomSheet extends ConsumerWidget {
     );
   }
 
+  // ignore: unused_element
   Widget _buildChipFilter({
     required List<String> options,
     required List<String> selectedOptions,

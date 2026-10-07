@@ -27,9 +27,9 @@ class PaymentResultPage extends ConsumerWidget {
                 _getTitle(paymentState.status),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: _getColor(paymentState.status),
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: _getColor(paymentState.status),
+                ),
               ),
               const SizedBox(height: AppSpacing.m),
               Text(
@@ -42,16 +42,20 @@ class PaymentResultPage extends ConsumerWidget {
                 Text(
                   'Payment ID: ${paymentState.paymentId}',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.hint),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(color: AppColors.hint),
                 ),
               ],
               const SizedBox(height: AppSpacing.xxl),
               AppButton(
-                text: paymentState.status == PaymentStatus.success ? 'CONTINUE SHOPPING' : 'TRY AGAIN',
+                text: paymentState.status == PaymentStatus.success
+                    ? 'CONTINUE SHOPPING'
+                    : 'TRY AGAIN',
                 onPressed: () {
                   ref.read(paymentControllerProvider.notifier).reset();
                   if (paymentState.status == PaymentStatus.success) {
-                    context.go('/home');
+                    context.go('/order-success');
                   } else {
                     context.pop();
                   }
@@ -101,7 +105,8 @@ class PaymentResultPage extends ConsumerWidget {
 
   Color _getColor(PaymentStatus status) {
     if (status == PaymentStatus.success) return Colors.green;
-    if (status == PaymentStatus.failure || status == PaymentStatus.cancelled) return AppColors.error;
+    if (status == PaymentStatus.failure || status == PaymentStatus.cancelled)
+      return AppColors.error;
     return AppColors.primary;
   }
 }
