@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../constants/app_routes.dart';
 import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/presentation/pages/auth_screen.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
@@ -38,15 +39,9 @@ GoRouter router(RouterRef ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/landing',
     redirect: (context, state) {
-      final isProtectedRoute =
-          state.matchedLocation == '/home' ||
-          state.matchedLocation.startsWith('/categories') ||
-          state.matchedLocation.startsWith('/wishlist') ||
-          state.matchedLocation.startsWith('/orders') ||
-          state.matchedLocation.startsWith('/profile') ||
-          state.matchedLocation == '/cart' ||
-          state.matchedLocation == '/checkout' ||
-          state.matchedLocation == '/payment-result';
+      final isProtectedRoute = AppRoutes.isProtectedRoute(
+        state.matchedLocation,
+      );
 
       final isAuthRoute =
           state.matchedLocation == '/auth' ||
@@ -55,11 +50,17 @@ GoRouter router(RouterRef ref) {
           state.matchedLocation == '/otp';
 
       if (isProtectedRoute && !authState.isAuthenticated) {
-        return '/auth';
+        final redirectTarget = state.matchedLocation == '/'
+            ? AppRoutes.home
+            : state.matchedLocation;
+        return AppRoutes.authWithRedirect(
+          redirectTarget,
+          message: 'Please sign in to continue',
+        );
       }
 
       if (authState.isAuthenticated && isAuthRoute) {
-        return '/home';
+        return AppRoutes.home;
       }
 
       return null;

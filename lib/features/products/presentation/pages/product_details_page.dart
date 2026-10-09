@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/cart_badge.dart';
+import '../../../auth/application/auth_state.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../controllers/product_details_controller.dart';
 import '../../../home/domain/models/product.dart';
@@ -14,15 +16,13 @@ import '../../../home/domain/models/product.dart';
 class ProductDetailsPage extends HookConsumerWidget {
   final String productId;
 
-  const ProductDetailsPage({
-    super.key,
-    required this.productId,
-  });
+  const ProductDetailsPage({super.key, required this.productId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productState = ref.watch(productDetailsControllerProvider(productId));
     final cartNotifier = ref.read(cartControllerProvider.notifier);
+    final isAuthenticated = ref.watch(authControllerProvider).isAuthenticated;
     final selectedVariant = useState<String?>(null);
 
     return productState.when(
@@ -54,7 +54,8 @@ class ProductDetailsPage extends HookConsumerWidget {
                               children: [
                                 Text(
                                   'FEINOV PREMIUM',
-                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
                                         color: AppColors.secondary,
                                         letterSpacing: 2,
                                       ),
@@ -62,7 +63,10 @@ class ProductDetailsPage extends HookConsumerWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   product.name,
-                                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium
+                                      ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'Georgia',
                                       ),
@@ -72,8 +76,12 @@ class ProductDetailsPage extends HookConsumerWidget {
                           ),
                           IconButton(
                             icon: Icon(
-                              product.isWishlisted ? Icons.favorite : Icons.favorite_border,
-                              color: product.isWishlisted ? AppColors.error : AppColors.primary,
+                              product.isWishlisted
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: product.isWishlisted
+                                  ? AppColors.error
+                                  : AppColors.primary,
                             ),
                             onPressed: () {},
                           ),
@@ -86,12 +94,14 @@ class ProductDetailsPage extends HookConsumerWidget {
                           const SizedBox(width: 4),
                           Text(
                             product.rating.toString(),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             '(${product.reviewCount} Reviews)',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.hint),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.hint),
                           ),
                         ],
                       ),
@@ -101,7 +111,8 @@ class ProductDetailsPage extends HookConsumerWidget {
                         children: [
                           Text(
                             '\$${product.price.toStringAsFixed(2)}',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.primary,
                                 ),
@@ -110,7 +121,8 @@ class ProductDetailsPage extends HookConsumerWidget {
                             const SizedBox(width: 8),
                             Text(
                               '\$${product.originalPrice!.toStringAsFixed(2)}',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
                                     decoration: TextDecoration.lineThrough,
                                     color: AppColors.hint,
                                   ),
@@ -118,7 +130,8 @@ class ProductDetailsPage extends HookConsumerWidget {
                             const SizedBox(width: 8),
                             Text(
                               '${(((product.originalPrice! - product.price) / product.originalPrice!) * 100).round()}% OFF',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
                                     color: AppColors.error,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -128,7 +141,11 @@ class ProductDetailsPage extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 24),
                       if (product.variants.isNotEmpty) ...[
-                        Text('Select Size', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(
+                          'Select Size',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 12,
@@ -137,11 +154,23 @@ class ProductDetailsPage extends HookConsumerWidget {
                             return ChoiceChip(
                               label: Text(variant),
                               selected: isSelected,
-                              onSelected: (_) => selectedVariant.value = variant,
+                              onSelected: (_) =>
+                                  selectedVariant.value = variant,
                               selectedColor: AppColors.primary,
-                              labelStyle: TextStyle(color: isSelected ? Colors.white : AppColors.primary),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusM)),
+                              labelStyle: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.primary,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.radiusM,
+                                ),
+                              ),
                             );
                           }).toList(),
                         ),
@@ -151,7 +180,10 @@ class ProductDetailsPage extends HookConsumerWidget {
                       const SizedBox(height: 24),
                       _ExpandableSection(
                         title: 'Description',
-                        content: Text(product.description, style: Theme.of(context).textTheme.bodyLarge),
+                        content: Text(
+                          product.description,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                         isInitiallyExpanded: true,
                       ),
                       if (product.benefits.isNotEmpty)
@@ -159,22 +191,40 @@ class ProductDetailsPage extends HookConsumerWidget {
                           title: 'Benefits',
                           content: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: product.benefits.map((b) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.check_circle_outline, color: AppColors.primaryLight, size: 20),
-                                  const SizedBox(width: 8),
-                                  Expanded(child: Text(b, style: Theme.of(context).textTheme.bodyMedium)),
-                                ],
-                              ),
-                            )).toList(),
+                            children: product.benefits
+                                .map(
+                                  (b) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.check_circle_outline,
+                                          color: AppColors.primaryLight,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            b,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
                       if (product.specialFeatures != null)
                         _ExpandableSection(
                           title: 'What makes it Special?',
-                          content: Text(product.specialFeatures!, style: Theme.of(context).textTheme.bodyMedium),
+                          content: Text(
+                            product.specialFeatures!,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ),
                       if (product.ingredients.isNotEmpty)
                         _ExpandableSection(
@@ -182,36 +232,68 @@ class ProductDetailsPage extends HookConsumerWidget {
                           content: Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: product.ingredients.map((i) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceVariant,
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusS),
-                              ),
-                              child: Text(i, style: Theme.of(context).textTheme.bodySmall),
-                            )).toList(),
+                            children: product.ingredients
+                                .map(
+                                  (i) => Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceVariant,
+                                      borderRadius: BorderRadius.circular(
+                                        AppSpacing.radiusS,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      i,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
                       if (product.usageInstructions != null)
                         _ExpandableSection(
                           title: 'How to use',
-                          content: Text(product.usageInstructions!, style: Theme.of(context).textTheme.bodyMedium),
+                          content: Text(
+                            product.usageInstructions!,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ),
                       if (product.productInfo.isNotEmpty)
                         _ExpandableSection(
                           title: 'Product Information',
                           content: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: product.productInfo.map((info) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.info_outline, color: AppColors.secondary, size: 18),
-                                  const SizedBox(width: 8),
-                                  Expanded(child: Text(info, style: Theme.of(context).textTheme.bodyMedium)),
-                                ],
-                              ),
-                            )).toList(),
+                            children: product.productInfo
+                                .map(
+                                  (info) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.info_outline,
+                                          color: AppColors.secondary,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            info,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
                       _ExpandableSection(
@@ -220,7 +302,11 @@ class ProductDetailsPage extends HookConsumerWidget {
                           children: [
                             const _RatingSummaryWidget(),
                             const SizedBox(height: 16),
-                            AppButton(text: 'Write a Review', isOutlined: true, onPressed: () {}),
+                            AppButton(
+                              text: 'Write a Review',
+                              isOutlined: true,
+                              onPressed: () {},
+                            ),
                           ],
                         ),
                       ),
@@ -234,7 +320,21 @@ class ProductDetailsPage extends HookConsumerWidget {
           bottomNavigationBar: _StickyBottomBar(
             product: product,
             quantity: quantity,
+            isAuthenticated: isAuthenticated,
             onQuantityChanged: (newQty) {
+              if (newQty > 0 && !isAuthenticated) {
+                final redirectTarget = GoRouter.of(
+                  context,
+                ).state.matchedLocation;
+
+                context.push(
+                  AppRoutes.authWithRedirect(
+                    redirectTarget,
+                    message: 'Please sign in to continue',
+                  ),
+                );
+                return;
+              }
               cartNotifier.updateProductQuantity(product, newQty);
             },
           ),
@@ -258,10 +358,7 @@ class _ImageCarouselSliver extends StatelessWidget {
         background: PageView.builder(
           itemCount: images.length,
           itemBuilder: (context, index) {
-            return Image.network(
-              images[index],
-              fit: BoxFit.cover,
-            );
+            return Image.network(images[index], fit: BoxFit.cover);
           },
         ),
       ),
@@ -317,7 +414,9 @@ class _ExpandableSection extends HookWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Icon(isExpanded.value ? Icons.expand_less : Icons.expand_more),
               ],
@@ -338,11 +437,13 @@ class _ExpandableSection extends HookWidget {
 class _StickyBottomBar extends ConsumerWidget {
   final Product product;
   final int quantity;
+  final bool isAuthenticated;
   final ValueChanged<int> onQuantityChanged;
 
   const _StickyBottomBar({
     required this.product,
     required this.quantity,
+    required this.isAuthenticated,
     required this.onQuantityChanged,
   });
 
@@ -383,7 +484,9 @@ class _StickyBottomBar extends ConsumerWidget {
                       ),
                       Text(
                         quantity.toString(),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.add),
@@ -406,6 +509,15 @@ class _StickyBottomBar extends ConsumerWidget {
               child: AppButton(
                 text: 'BUY NOW',
                 onPressed: () {
+                  if (!isAuthenticated) {
+                    context.push(
+                      AppRoutes.authWithRedirect(
+                        GoRouter.of(context).state.matchedLocation,
+                        message: 'Please sign in to continue',
+                      ),
+                    );
+                    return;
+                  }
                   if (quantity == 0) {
                     cartNotifier.addItem(product);
                   }
@@ -438,9 +550,9 @@ class _RatingSummaryWidget extends StatelessWidget {
               Text(
                 '4.8',
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
               ),
               const Row(
                 children: [
@@ -472,7 +584,11 @@ class _RatingSummaryWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingBar(BuildContext context, String label, double percentage) {
+  Widget _buildRatingBar(
+    BuildContext context,
+    String label,
+    double percentage,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
@@ -483,7 +599,9 @@ class _RatingSummaryWidget extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage,
               backgroundColor: Colors.grey[300],
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppColors.primary,
+              ),
               minHeight: 4,
             ),
           ),

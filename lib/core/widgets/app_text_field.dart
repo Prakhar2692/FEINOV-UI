@@ -39,10 +39,7 @@ class AppTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null && label!.isNotEmpty) ...[
-          Text(
-            label!,
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
+          Text(label!, style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 8),
         ],
         TextFormField(
@@ -50,6 +47,7 @@ class AppTextField extends StatelessWidget {
           obscureText: isPassword,
           keyboardType: keyboardType,
           validator: validator,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           inputFormatters: inputFormatters,
           onChanged: onChanged,
           onFieldSubmitted: onSubmitted,
@@ -59,6 +57,7 @@ class AppTextField extends StatelessWidget {
             hintText: hint,
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
+            errorStyle: const TextStyle(color: Colors.red),
           ),
         ),
       ],
