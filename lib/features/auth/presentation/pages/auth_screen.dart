@@ -84,7 +84,14 @@ class AuthScreen extends HookWidget {
                 Expanded(
                   child: TabBarView(
                     controller: tabController,
-                    children: const [LoginPage(), RegisterPage()],
+                    children: [
+                      const LoginPage(),
+                      RegisterPage(
+                        onRegisterSuccess: () {
+                          tabController.animateTo(0);
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],

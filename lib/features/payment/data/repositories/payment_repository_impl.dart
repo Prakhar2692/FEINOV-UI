@@ -38,7 +38,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }) async {
     try {
       final response = await dio.post(
-        '${AppEndpoints.payments}/verify',
+        AppEndpoints.paymentsVerify,
         data: request.toJson(),
       );
 

@@ -21,8 +21,12 @@ class CartRepositoryImpl implements CartRepository {
     int quantity = 1,
   }) async {
     final response = await dio.post(
-      AppEndpoints.cart,
-      data: {'productId': productId, 'quantity': quantity},
+      AppEndpoints.cartItems,
+      data: {
+        'userId': 'current-user',
+        'variantId': productId,
+        'quantity': quantity,
+      },
     );
     return Map<String, dynamic>.from(response.data);
   }
@@ -32,16 +36,18 @@ class CartRepositoryImpl implements CartRepository {
     required String itemId,
     required int quantity,
   }) async {
-    final response = await dio.patch(
-      '${AppEndpoints.cart}/$itemId',
-      data: {'quantity': quantity},
+    final response = await dio.put(
+      AppEndpoints.cartItemQuantity.replaceFirst('{cartItemId}', itemId),
+      data: {'userId': 'current-user', 'quantity': quantity},
     );
     return Map<String, dynamic>.from(response.data);
   }
 
   @override
   Future<void> removeItem(String itemId) async {
-    await dio.delete('${AppEndpoints.cart}/$itemId');
+    await dio.delete(
+      AppEndpoints.cartItemQuantity.replaceFirst('{cartItemId}', itemId),
+    );
   }
 
   @override

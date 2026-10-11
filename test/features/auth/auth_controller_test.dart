@@ -1,9 +1,14 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:feinov_ui/core/constants/app_strings.dart';
+import 'package:feinov_ui/core/di/app_providers.dart';
+import 'package:feinov_ui/core/error/exceptions.dart';
 import 'package:feinov_ui/core/services/session_service.dart';
 import 'package:feinov_ui/core/services/storage_service.dart';
 import 'package:feinov_ui/features/auth/application/auth_state.dart';
 import 'package:feinov_ui/features/auth/domain/entities/user.dart';
 import 'package:feinov_ui/features/auth/domain/repositories/auth_repository.dart';
+import 'package:feinov_ui/features/auth/presentation/controllers/register_controller.dart';
 
 class _FakeAuthRepository implements AuthRepository {
   @override
@@ -25,7 +30,7 @@ class _FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<User> register({
+  Future<RegisterResult> register({
     required String firstName,
     required String lastName,
     required String email,
@@ -33,12 +38,17 @@ class _FakeAuthRepository implements AuthRepository {
     required String mobileNumber,
     required String countryCode,
   }) async {
-    return User(
-      id: 'u_new',
-      email: email,
-      name: '$firstName $lastName',
-      phoneNumber: mobileNumber,
-      isEmailVerified: true,
+    return RegisterResult(
+      statusCode: 200,
+      user: User(
+        id: 'u_new',
+        email: email,
+        name: '$firstName $lastName',
+        phoneNumber: mobileNumber,
+        isEmailVerified: true,
+      ),
+      message:
+          'User registered successfully. Verify your mobile number to sign in.',
     );
   }
 
@@ -137,7 +147,99 @@ void main() {
         contains('Invalid credentials'),
       );
     });
+
+    test(
+      'register surfaces a connection message instead of duplicate-user text',
+      () async {
+        final container = ProviderContainer(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(
+              _NetworkFailingAuthRepository(),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        final result = await container
+            .read(registerControllerProvider.notifier)
+            .register(
+              firstName: 'Jane',
+              lastName: 'Doe',
+              email: 'jane@example.com',
+              password: 'Password123',
+              countryCode: '+91',
+              mobileNumber: '9876543210',
+            );
+
+        expect(result, isNotNull);
+        expect(result!.user, isNull);
+        expect(result.statusCode, 0);
+        expect(result.message, AppStrings.networkError);
+      },
+    );
   });
+}
+
+class _NetworkFailingAuthRepository implements AuthRepository {
+  @override
+  Future<bool> isAuthenticated() async => false;
+
+  @override
+  Future<User> login({
+    required String email,
+    required String password,
+    bool rememberMe = true,
+  }) async {
+    throw const NetworkException(
+      'Unable to connect to the server. Please check your internet connection and try again.',
+    );
+  }
+
+  @override
+  Future<RegisterResult> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String mobileNumber,
+    required String countryCode,
+  }) async {
+    throw const NetworkException(
+      'Unable to connect to the server. Please check your internet connection and try again.',
+    );
+  }
+
+  @override
+  Future<void> sendOtp({
+    required String mobileNumber,
+    String countryCode = '+91',
+  }) async {}
+
+  @override
+  Future<User> verifyOtp({
+    required String mobileNumber,
+    required String otp,
+  }) async {
+    throw const NetworkException(
+      'Unable to connect to the server. Please check your internet connection and try again.',
+    );
+  }
+
+  @override
+  Future<void> forgotPassword(String email) async {}
+
+  @override
+  Future<User> verifyEmail({required String email, required String otp}) async {
+    throw const NetworkException(
+      'Unable to connect to the server. Please check your internet connection and try again.',
+    );
+  }
+
+  @override
+  Future<User?> getCurrentUser() async => null;
+
+  @override
+  Future<void> logout() async {}
 }
 
 class _FailingAuthRepository implements AuthRepository {
@@ -154,7 +256,7 @@ class _FailingAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<User> register({
+  Future<RegisterResult> register({
     required String firstName,
     required String lastName,
     required String email,

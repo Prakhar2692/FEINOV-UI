@@ -1,8 +1,13 @@
+import '../constants/app_strings.dart';
+
 class AppException implements Exception {
   const AppException(this.message, {this.code = 'app_exception'});
 
   final String message;
   final String code;
+
+  String get userMessage =>
+      this is NetworkException ? AppStrings.networkError : message;
 
   @override
   String toString() => 'AppException($code): $message';

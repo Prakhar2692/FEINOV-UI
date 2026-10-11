@@ -10,7 +10,9 @@ import '../../../../core/utils/responsive_layout.dart';
 import '../controllers/register_controller.dart';
 
 class RegisterPage extends HookConsumerWidget {
-  const RegisterPage({super.key});
+  const RegisterPage({super.key, this.onRegisterSuccess});
+
+  final VoidCallback? onRegisterSuccess;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -188,7 +190,7 @@ class RegisterPage extends HookConsumerWidget {
             text: 'Sign Up',
             isLoading: isLoading,
             onPressed: isFormValid
-                ? () {
+                ? () async {
                     final firstName = firstNameController.text.trim();
                     final lastName = lastNameController.text.trim();
                     final email = emailController.text.trim();
@@ -229,7 +231,7 @@ class RegisterPage extends HookConsumerWidget {
                     }
 
                     if (formKey.currentState?.validate() ?? false) {
-                      ref
+                      final result = await ref
                           .read(registerControllerProvider.notifier)
                           .register(
                             firstName: firstName,
@@ -239,6 +241,33 @@ class RegisterPage extends HookConsumerWidget {
                             countryCode: countryCode.value,
                             mobileNumber: mobile,
                           );
+
+                      if (!context.mounted) return;
+
+                      final isSuccess = result?.user != null;
+                      final message = isSuccess
+                          ? 'User registered successfully. Verify your mobile number to sign in.'
+                          : (result?.message ??
+                                'No internet connection. Please check your connection and try again.');
+
+                      if (isSuccess) {
+                        onRegisterSuccess?.call();
+                      }
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            message,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: isSuccess
+                              ? Colors.green
+                              : Theme.of(context).colorScheme.error,
+                          margin: const EdgeInsets.all(16),
+                          duration: const Duration(seconds: 4),
+                        ),
+                      );
                     }
                   }
                 : null,

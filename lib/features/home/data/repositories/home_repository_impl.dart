@@ -30,4 +30,28 @@ class HomeRepositoryImpl implements HomeRepository {
       return HomePageData.fallback();
     }
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchBanners() async {
+    final response = await dio.get(AppEndpoints.homeBanners);
+    final items =
+        response.data['items'] as List? ?? response.data as List? ?? const [];
+    return items.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchCategories() async {
+    final response = await dio.get(AppEndpoints.homeCategories);
+    final items =
+        response.data['items'] as List? ?? response.data as List? ?? const [];
+    return items.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchFeaturedProducts() async {
+    final response = await dio.get(AppEndpoints.homeFeaturedProducts);
+    final items =
+        response.data['items'] as List? ?? response.data as List? ?? const [];
+    return items.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+  }
 }

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/app_providers.dart';
+import '../../../../core/error/exceptions.dart';
 
 part 'otp_controller.g.dart';
 
@@ -46,6 +48,24 @@ class OtpTimer extends _$OtpTimer {
 
 @riverpod
 class OtpVerificationController extends _$OtpVerificationController {
+  String _friendlyMessage(Object error) {
+    if (error is AppException) {
+      return error.userMessage;
+    }
+
+    final message = error.toString();
+    final normalized = message.toLowerCase();
+    if (normalized.contains('socket') ||
+        normalized.contains('connection') ||
+        normalized.contains('timeout') ||
+        normalized.contains('host lookup') ||
+        normalized.contains('network')) {
+      return AppStrings.networkError;
+    }
+
+    return message.replaceFirst('Exception: ', '');
+  }
+
   @override
   OtpState build() {
     return OtpState(status: OtpStatus.initial);
@@ -61,7 +81,7 @@ class OtpVerificationController extends _$OtpVerificationController {
     } catch (e) {
       state = state.copyWith(
         status: OtpStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: _friendlyMessage(e),
       );
     }
   }
@@ -76,7 +96,7 @@ class OtpVerificationController extends _$OtpVerificationController {
     } catch (e) {
       state = state.copyWith(
         status: OtpStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: _friendlyMessage(e),
       );
     }
   }
