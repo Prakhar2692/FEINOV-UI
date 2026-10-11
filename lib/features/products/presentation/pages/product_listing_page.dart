@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_product_card.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/cart_badge.dart';
+import '../../../auth/application/auth_state.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../controllers/product_listing_controller.dart';
 import '../widgets/product_filter_bottom_sheet.dart';
@@ -28,11 +30,15 @@ class ProductListingPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
     final state = ref.watch(productListingControllerProvider(subcategoryId));
-    final notifier = ref.read(productListingControllerProvider(subcategoryId).notifier);
+    final notifier = ref.read(
+      productListingControllerProvider(subcategoryId).notifier,
+    );
+    final isAuthenticated = ref.watch(authControllerProvider).isAuthenticated;
 
     useEffect(() {
       scrollController.addListener(() {
-        if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 300) {
+        if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 300) {
           notifier.loadMore();
         }
       });
@@ -43,10 +49,7 @@ class ProductListingPage extends HookConsumerWidget {
       appBar: AppTopBar(
         title: title,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
           const CartBadge(),
         ],
       ),
@@ -63,6 +66,7 @@ class ProductListingPage extends HookConsumerWidget {
                       notifier: notifier,
                       scrollController: scrollController,
                       cartRef: ref,
+                      isAuthenticated: isAuthenticated,
                     ),
             ),
           ),
@@ -78,7 +82,10 @@ class _FilterSortBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l, vertical: AppSpacing.s),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.l,
+        vertical: AppSpacing.s,
+      ),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.divider)),
@@ -113,12 +120,14 @@ class _ProductGrid extends StatelessWidget {
   final ProductListingController notifier;
   final ScrollController scrollController;
   final WidgetRef cartRef;
+  final bool isAuthenticated;
 
   const _ProductGrid({
     required this.state,
     required this.notifier,
     required this.scrollController,
     required this.cartRef,
+    required this.isAuthenticated,
   });
 
   @override
@@ -138,23 +147,33 @@ class _ProductGrid extends StatelessWidget {
               crossAxisSpacing: AppSpacing.m,
               mainAxisSpacing: AppSpacing.m,
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final product = state.products[index];
-                final quantity = cartNotifier.getProductQuantity(product.id);
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final product = state.products[index];
+              final quantity = cartNotifier.getProductQuantity(product.id);
 
-                return AppProductCard(
-                  product: product,
-                  quantity: quantity,
-                  onTap: () => context.push('/product-details/${product.id}'),
-                  onWishlistTap: () => notifier.toggleWishlist(product.id),
-                  onQuantityChanged: (newQty) {
-                    cartNotifier.updateProductQuantity(product, newQty);
-                  },
-                );
-              },
-              childCount: state.products.length,
-            ),
+              return AppProductCard(
+                product: product,
+                quantity: quantity,
+                onTap: () => context.push('/product-details/${product.id}'),
+                onWishlistTap: () => notifier.toggleWishlist(product.id),
+                onQuantityChanged: (newQty) {
+                  if (newQty > 0 && !isAuthenticated) {
+                    final redirectTarget = GoRouter.of(
+                      context,
+                    ).state.matchedLocation;
+
+                    context.push(
+                      AppRoutes.authWithRedirect(
+                        redirectTarget,
+                        message: 'Please sign in to continue',
+                      ),
+                    );
+                    return;
+                  }
+                  cartNotifier.updateProductQuantity(product, newQty);
+                },
+              );
+            }, childCount: state.products.length),
           ),
         ),
         if (state.isLoadMore)
@@ -164,9 +183,7 @@ class _ProductGrid extends StatelessWidget {
               child: Center(child: CircularProgressIndicator()),
             ),
           ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: AppSpacing.xxl),
-        ),
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
       ],
     );
   }

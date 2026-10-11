@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/utils/responsive_layout.dart';
@@ -18,11 +19,8 @@ class LoginPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final mobileController = useTextEditingController();
-    final emailController = useTextEditingController();
-    final passwordController = useTextEditingController();
-    final passwordVisible = useState(false);
-    final rememberMe = useState(true);
     final countryCode = useState('91');
+    useListenable(mobileController);
 
     final loginState = ref.watch(loginControllerProvider);
     final authState = ref.watch(authControllerProvider);
@@ -50,7 +48,10 @@ class LoginPage extends HookConsumerWidget {
 
     ref.listen(authControllerProvider, (previous, next) {
       if (next.isAuthenticated) {
-        context.go('/home');
+        final redirectTarget = GoRouter.of(
+          context,
+        ).state.uri.queryParameters['redirect'];
+        context.go(AppRoutes.resolveRedirectAfterAuth(redirectTarget));
       }
       if (next.errorMessage != null && next.errorMessage!.isNotEmpty) {
         ScaffoldMessenger.of(
@@ -66,10 +67,6 @@ class LoginPage extends HookConsumerWidget {
           context,
           formKey,
           mobileController,
-          emailController,
-          passwordController,
-          passwordVisible,
-          rememberMe,
           countryCode,
           loginState.isLoading,
           authState,
@@ -82,10 +79,6 @@ class LoginPage extends HookConsumerWidget {
               context,
               formKey,
               mobileController,
-              emailController,
-              passwordController,
-              passwordVisible,
-              rememberMe,
               countryCode,
               loginState.isLoading,
               authState,
@@ -101,15 +94,13 @@ class LoginPage extends HookConsumerWidget {
     BuildContext context,
     GlobalKey<FormState> formKey,
     TextEditingController mobileController,
-    TextEditingController emailController,
-    TextEditingController passwordController,
-    ValueNotifier<bool> passwordVisible,
-    ValueNotifier<bool> rememberMe,
     ValueNotifier<String> countryCode,
     bool isLoading,
     dynamic authState,
     WidgetRef ref,
   ) {
+    final isFormValid = mobileController.text.trim().length >= 10;
+
     return Form(
       key: formKey,
       child: Column(
@@ -130,73 +121,11 @@ class LoginPage extends HookConsumerWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xl),
-          AppTextField(
-            label: 'Email',
-            hint: 'you@example.com',
-            controller: emailController,
-            keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Email is required';
-              }
-              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Enter a valid email';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: AppSpacing.m),
-          AppTextField(
-            label: 'Password',
-            hint: 'Enter your password',
-            controller: passwordController,
-            isPassword: !passwordVisible.value,
-            suffixIcon: IconButton(
-              onPressed: () => passwordVisible.value = !passwordVisible.value,
-              icon: Icon(
-                passwordVisible.value ? Icons.visibility_off : Icons.visibility,
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Password is required';
-              }
-              if (value.length < 6) {
-                return 'Password must be at least 6 characters';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: AppSpacing.s),
-          Row(
-            children: [
-              Checkbox(
-                value: rememberMe.value,
-                onChanged: (value) => rememberMe.value = value ?? true,
-              ),
-              const Text('Remember me'),
-              const Spacer(),
-              TextButton(
-                onPressed: () => context.push('/forgot-password'),
-                child: const Text('Forgot password?'),
-              ),
-            ],
-          ),
           const SizedBox(height: AppSpacing.m),
           AppButton(
-            text: 'Sign in',
-            isLoading: authState.isLoading || isLoading,
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                ref
-                    .read(authControllerProvider.notifier)
-                    .signIn(
-                      email: emailController.text.trim(),
-                      password: passwordController.text,
-                      rememberMe: rememberMe.value,
-                    );
-              }
-            },
+            text: 'Continue as Guest',
+            isOutlined: true,
+            onPressed: () => context.go('/home'),
           ),
           const SizedBox(height: AppSpacing.l),
           const Divider(),
@@ -238,7 +167,11 @@ class LoginPage extends HookConsumerWidget {
                   controller: mobileController,
                   keyboardType: TextInputType.phone,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(hintText: 'Phone number'),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  decoration: const InputDecoration(
+                    hintText: 'Phone number',
+                    errorStyle: TextStyle(color: Colors.red),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Required';
                     if (value.length < 10) return 'Invalid number';
@@ -252,16 +185,30 @@ class LoginPage extends HookConsumerWidget {
           AppButton(
             text: 'Continue with OTP',
             isLoading: isLoading,
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                ref
-                    .read(loginControllerProvider.notifier)
-                    .sendOtp(
-                      countryCode: countryCode.value,
-                      mobileNumber: mobileController.text,
-                    );
-              }
-            },
+            onPressed: isFormValid
+                ? () {
+                    final trimmedNumber = mobileController.text.trim();
+                    final isValid = formKey.currentState?.validate() ?? false;
+
+                    if (!isValid) return;
+
+                    if (trimmedNumber.length != 10) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Mobile number must be 10 digits'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    ref
+                        .read(loginControllerProvider.notifier)
+                        .sendOtp(
+                          countryCode: countryCode.value,
+                          mobileNumber: trimmedNumber,
+                        );
+                  }
+                : null,
           ),
         ],
       ),

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_product_card.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/cart_badge.dart';
+import '../../../auth/application/auth_state.dart';
+import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../controllers/search_controller.dart' as search_ctrl;
 
 class SearchPage extends HookConsumerWidget {
@@ -16,13 +19,16 @@ class SearchPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final searchState = ref.watch(search_ctrl.searchControllerProvider);
-    final searchNotifier = ref.read(search_ctrl.searchControllerProvider.notifier);
+    final searchNotifier = ref.read(
+      search_ctrl.searchControllerProvider.notifier,
+    );
     final searchController = useTextEditingController(text: searchState.query);
     final scrollController = useScrollController();
 
     useEffect(() {
       scrollController.addListener(() {
-        if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 200) {
           searchNotifier.loadMore();
         }
       });
@@ -32,13 +38,16 @@ class SearchPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search'),
-        actions: const [
-          CartBadge(),
-        ],
+        actions: const [CartBadge()],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.l,
+              0,
+              AppSpacing.l,
+              AppSpacing.m,
+            ),
             child: AppTextField(
               controller: searchController,
               hint: 'Search for products...',
@@ -58,7 +67,13 @@ class SearchPage extends HookConsumerWidget {
           ),
         ),
       ),
-      body: _buildBody(context, searchState, searchNotifier, searchController, scrollController),
+      body: _buildBody(
+        context,
+        searchState,
+        searchNotifier,
+        searchController,
+        scrollController,
+      ),
     );
   }
 
@@ -74,14 +89,26 @@ class SearchPage extends HookConsumerWidget {
     }
 
     if (state.results.isNotEmpty) {
-      return _SearchResultsView(state: state, notifier: notifier, scrollController: scrollController);
+      return _SearchResultsView(
+        state: state,
+        notifier: notifier,
+        scrollController: scrollController,
+      );
     }
 
     if (state.suggestions.isNotEmpty && state.query.isNotEmpty) {
-      return _SearchSuggestionsView(state: state, notifier: notifier, textController: textController);
+      return _SearchSuggestionsView(
+        state: state,
+        notifier: notifier,
+        textController: textController,
+      );
     }
 
-    return _InitialSearchView(state: state, notifier: notifier, textController: textController);
+    return _InitialSearchView(
+      state: state,
+      notifier: notifier,
+      textController: textController,
+    );
   }
 }
 
@@ -105,7 +132,10 @@ class _InitialSearchView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent Searches', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'Recent Searches',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               TextButton(
                 onPressed: () => notifier.clearRecent(),
                 child: const Text('Clear All'),
@@ -122,13 +152,20 @@ class _InitialSearchView extends StatelessWidget {
                   notifier.search(search);
                 },
                 backgroundColor: AppColors.surfaceVariant,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusCircular)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    AppSpacing.radiusCircular,
+                  ),
+                ),
               );
             }).toList(),
           ),
           const SizedBox(height: AppSpacing.xl),
         ],
-        Text('Popular Searches', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'Popular Searches',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.m),
         Wrap(
           spacing: AppSpacing.s,
@@ -140,7 +177,9 @@ class _InitialSearchView extends StatelessWidget {
                 notifier.search(search);
               },
               backgroundColor: AppColors.surfaceVariant,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusCircular)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusCircular),
+              ),
             );
           }).toList(),
         ),
@@ -194,42 +233,64 @@ class _SearchResultsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      controller: scrollController,
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.all(AppSpacing.l),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.65,
-              crossAxisSpacing: AppSpacing.m,
-              mainAxisSpacing: AppSpacing.m,
+    return Consumer(
+      builder: (context, ref, child) {
+        final authState = ref.watch(authControllerProvider);
+        final cartNotifier = ref.read(cartControllerProvider.notifier);
+
+        void handleSearchQuantityChange(dynamic product, int newQty) {
+          if (!authState.isAuthenticated) {
+            if (newQty > 0) {
+              final redirectTarget = GoRouter.of(context).state.matchedLocation;
+
+              context.push(
+                AppRoutes.authWithRedirect(
+                  redirectTarget,
+                  message: 'Please sign in to continue',
+                ),
+              );
+            }
+            return;
+          }
+
+          cartNotifier.updateProductQuantity(product, newQty);
+        }
+
+        return CustomScrollView(
+          controller: scrollController,
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(AppSpacing.l),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.65,
+                  crossAxisSpacing: AppSpacing.m,
+                  mainAxisSpacing: AppSpacing.m,
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final product = state.results[index];
+                  return AppProductCard(
+                    product: product,
+                    brand: 'Feinov Premium',
+                    onTap: () => context.push('/product-details/${product.id}'),
+                    onQuantityChanged: (newQty) =>
+                        handleSearchQuantityChange(product, newQty),
+                  );
+                }, childCount: state.results.length),
+              ),
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final product = state.results[index];
-                return AppProductCard(
-                  product: product,
-                  brand: 'Feinov Premium',
-                  onTap: () => context.push('/product-details/${product.id}'),
-                );
-              },
-              childCount: state.results.length,
-            ),
-          ),
-        ),
-        if (state.isLoadMore)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(AppSpacing.l),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: AppSpacing.xxl),
-        ),
-      ],
+            if (state.isLoadMore)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(AppSpacing.l),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
+          ],
+        );
+      },
     );
   }
 }

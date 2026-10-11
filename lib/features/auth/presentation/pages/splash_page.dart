@@ -65,12 +65,24 @@ class SplashPage extends HookWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () => context.go('/auth'),
-                    child: const Text(
-                      'Already a customer?',
-                      style: TextStyle(color: AppColors.onPrimary),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Have an account?',
+                        style: TextStyle(color: AppColors.onPrimary),
+                      ),
+                      TextButton(
+                        onPressed: () => context.go('/auth'),
+                        child: const Text(
+                          'Login / Sign up',
+                          style: TextStyle(
+                            color: AppColors.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

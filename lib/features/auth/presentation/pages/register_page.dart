@@ -18,10 +18,16 @@ class RegisterPage extends HookConsumerWidget {
     final firstNameController = useTextEditingController();
     final lastNameController = useTextEditingController();
     final emailController = useTextEditingController();
-    final passwordController = useTextEditingController();
-    final confirmPasswordController = useTextEditingController();
     final mobileController = useTextEditingController();
     final countryCode = useState('91');
+    useListenable(
+      Listenable.merge([
+        firstNameController,
+        lastNameController,
+        emailController,
+        mobileController,
+      ]),
+    );
 
     final registerState = ref.watch(registerControllerProvider);
 
@@ -34,8 +40,6 @@ class RegisterPage extends HookConsumerWidget {
           firstNameController,
           lastNameController,
           emailController,
-          passwordController,
-          confirmPasswordController,
           mobileController,
           countryCode,
           registerState.isLoading,
@@ -50,8 +54,6 @@ class RegisterPage extends HookConsumerWidget {
               firstNameController,
               lastNameController,
               emailController,
-              passwordController,
-              confirmPasswordController,
               mobileController,
               countryCode,
               registerState.isLoading,
@@ -69,8 +71,6 @@ class RegisterPage extends HookConsumerWidget {
     TextEditingController firstNameController,
     TextEditingController lastNameController,
     TextEditingController emailController,
-    TextEditingController passwordController,
-    TextEditingController confirmPasswordController,
     TextEditingController mobileController,
     ValueNotifier<String> countryCode,
     bool isLoading,
@@ -79,6 +79,15 @@ class RegisterPage extends HookConsumerWidget {
     final nameFormatter = FilteringTextInputFormatter.allow(
       RegExp(r'[a-zA-Z]'),
     );
+
+    final isFormValid =
+        firstNameController.text.trim().isNotEmpty &&
+        lastNameController.text.trim().isNotEmpty &&
+        emailController.text.trim().isNotEmpty &&
+        RegExp(
+          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+        ).hasMatch(emailController.text.trim()) &&
+        mobileController.text.trim().length >= 10;
 
     return Form(
       key: formKey,
@@ -160,7 +169,11 @@ class RegisterPage extends HookConsumerWidget {
                   controller: mobileController,
                   keyboardType: TextInputType.phone,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(hintText: 'Phone number'),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  decoration: const InputDecoration(
+                    hintText: 'Phone number',
+                    errorStyle: TextStyle(color: Colors.red),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Required';
                     if (value.length < 10) return 'Invalid number';
@@ -170,51 +183,65 @@ class RegisterPage extends HookConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.m),
-          AppTextField(
-            label: 'Password',
-            hint: 'Create a strong password',
-            isPassword: true,
-            controller: passwordController,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Password is required';
-              if (value.length < 8)
-                return 'Password must be at least 8 characters';
-              return null;
-            },
-          ),
-          const SizedBox(height: AppSpacing.m),
-          AppTextField(
-            label: 'Confirm Password',
-            hint: 'Confirm password',
-            isPassword: true,
-            controller: confirmPasswordController,
-            validator: (value) {
-              if (value == null || value.isEmpty)
-                return 'Confirm your password';
-              if (value != passwordController.text)
-                return 'Passwords do not match';
-              return null;
-            },
-          ),
           const SizedBox(height: AppSpacing.xl),
           AppButton(
             text: 'Sign Up',
             isLoading: isLoading,
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                ref
-                    .read(registerControllerProvider.notifier)
-                    .register(
-                      firstName: firstNameController.text,
-                      lastName: lastNameController.text,
-                      email: emailController.text,
-                      password: passwordController.text,
-                      countryCode: countryCode.value,
-                      mobileNumber: mobileController.text,
-                    );
-              }
-            },
+            onPressed: isFormValid
+                ? () {
+                    final firstName = firstNameController.text.trim();
+                    final lastName = lastNameController.text.trim();
+                    final email = emailController.text.trim();
+                    final mobile = mobileController.text.trim();
+
+                    if (firstName.isEmpty || lastName.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'First name and last name are required',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (email.isEmpty ||
+                        !RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(email)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Enter a valid email address'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (mobile.isEmpty || mobile.length < 10) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Mobile number must be at least 10 digits',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (formKey.currentState?.validate() ?? false) {
+                      ref
+                          .read(registerControllerProvider.notifier)
+                          .register(
+                            firstName: firstName,
+                            lastName: lastName,
+                            email: email,
+                            password: '',
+                            countryCode: countryCode.value,
+                            mobileNumber: mobile,
+                          );
+                    }
+                  }
+                : null,
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_product_card.dart';
@@ -9,6 +10,7 @@ import '../../../../core/widgets/app_shimmer.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/cart_badge.dart';
 import '../../../auth/application/auth_state.dart';
+import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../domain/models/home_models.dart';
 import '../controllers/home_controller.dart';
 
@@ -82,7 +84,8 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
               ],
-              data: (data) => _buildHomeSections(context, data, isLoggedIn),
+              data: (data) =>
+                  _buildHomeSections(context, ref, data, isLoggedIn),
             ),
           ],
         ),
@@ -92,12 +95,32 @@ class HomePage extends ConsumerWidget {
 
   List<Widget> _buildHomeSections(
     BuildContext context,
+    WidgetRef ref,
     HomePageData data,
     bool isLoggedIn,
   ) {
     final sectionProducts = isLoggedIn
         ? data.recommendedProducts
         : data.featuredProducts;
+    final cartNotifier = ref.read(cartControllerProvider.notifier);
+
+    void handleProductQuantityChange(dynamic product, int newQty) {
+      if (!isLoggedIn) {
+        if (newQty > 0) {
+          final redirectTarget = GoRouter.of(context).state.matchedLocation;
+
+          context.push(
+            AppRoutes.authWithRedirect(
+              redirectTarget,
+              message: 'Please sign in to continue',
+            ),
+          );
+        }
+        return;
+      }
+
+      cartNotifier.updateProductQuantity(product, newQty);
+    }
 
     return [
       if (data.banners.isNotEmpty)
@@ -220,6 +243,8 @@ class HomePage extends ConsumerWidget {
                 product: mapped,
                 brand: product.brand ?? 'FEINOV',
                 onTap: () => context.push('/product-details/${product.id}'),
+                onQuantityChanged: (newQty) =>
+                    handleProductQuantityChange(mapped, newQty),
               );
             }, childCount: sectionProducts.length),
           ),
@@ -522,28 +547,53 @@ class _ProductHorizontalList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 290,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          final mapped = product.toProduct();
-          return SizedBox(
-            width: 190,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s),
-              child: AppProductCard(
-                product: mapped,
-                brand: product.brand ?? 'FEINOV',
-                onTap: () => context.push('/product-details/${product.id}'),
-              ),
-            ),
-          );
-        },
-      ),
+    return Consumer(
+      builder: (context, ref, child) {
+        final authState = ref.watch(authControllerProvider);
+        final cartNotifier = ref.read(cartControllerProvider.notifier);
+
+        void handleProductQuantityChange(dynamic product, int newQty) {
+          if (!authState.isAuthenticated) {
+            if (newQty > 0) {
+              context.push(
+                AppRoutes.authWithRedirect(
+                  GoRouter.of(context).state.matchedLocation,
+                  message: 'Please sign in to continue',
+                ),
+              );
+            }
+            return;
+          }
+
+          cartNotifier.updateProductQuantity(product, newQty);
+        }
+
+        return SizedBox(
+          height: 290,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              final mapped = product.toProduct();
+              return SizedBox(
+                width: 190,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s),
+                  child: AppProductCard(
+                    product: mapped,
+                    brand: product.brand ?? 'FEINOV',
+                    onTap: () => context.push('/product-details/${product.id}'),
+                    onQuantityChanged: (newQty) =>
+                        handleProductQuantityChange(mapped, newQty),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
