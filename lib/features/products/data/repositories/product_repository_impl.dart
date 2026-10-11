@@ -15,12 +15,12 @@ class ProductRepositoryImpl implements ProductRepository {
     int limit = 20,
   }) async {
     final response = await dio.get(
-      AppEndpoints.products,
+      AppEndpoints.catalogProducts,
       queryParameters: {
         if (categoryId != null && categoryId.isNotEmpty)
           'categoryId': categoryId,
-        'page': page,
-        'limit': limit,
+        'PageNumber': page,
+        'PageSize': limit,
       },
     );
 
@@ -30,13 +30,18 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Map<String, dynamic>> getProductById(String productId) async {
-    final response = await dio.get('${AppEndpoints.products}/$productId');
+    final response = await dio.get(
+      AppEndpoints.catalogProductDetails.replaceFirst('{productId}', productId),
+    );
     return Map<String, dynamic>.from(response.data);
   }
 
   @override
   Future<List<Map<String, dynamic>>> getFeaturedProducts() async {
-    final response = await dio.get('${AppEndpoints.products}/featured');
+    final response = await dio.get(
+      AppEndpoints.catalogProducts,
+      queryParameters: {'featured': true, 'PageSize': 10},
+    );
     final items = response.data['items'] as List? ?? const [];
     return items.map((item) => Map<String, dynamic>.from(item)).toList();
   }

@@ -5,12 +5,32 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_routes.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/utils/responsive_layout.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../application/auth_state.dart';
 import '../controllers/login_controller.dart';
+
+String _friendlyUiMessage(Object error) {
+  if (error is AppException) {
+    return error.userMessage;
+  }
+
+  final message = error.toString();
+  final normalized = message.toLowerCase();
+  if (normalized.contains('socket') ||
+      normalized.contains('connection') ||
+      normalized.contains('timeout') ||
+      normalized.contains('host lookup') ||
+      normalized.contains('network')) {
+    return AppStrings.networkError;
+  }
+
+  return message.replaceFirst('Exception: ', '');
+}
 
 class LoginPage extends HookConsumerWidget {
   const LoginPage({super.key});
@@ -30,7 +50,7 @@ class LoginPage extends HookConsumerWidget {
         error: (error, stackTrace) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(error.toString())));
+          ).showSnackBar(SnackBar(content: Text(_friendlyUiMessage(error))));
         },
         data: (_) {
           if (previous is AsyncLoading) {

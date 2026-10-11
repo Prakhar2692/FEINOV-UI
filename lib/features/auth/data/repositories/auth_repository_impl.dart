@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/constants/app_endpoints.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/services/session_service.dart';
@@ -57,16 +58,14 @@ class AuthRepositoryImpl implements AuthRepository {
       if (error.response?.statusCode == 401) {
         throw const AuthException('Invalid email or password.');
       }
-      throw const NetworkException(
-        'Unable to reach the authentication server.',
-      );
+      throw const NetworkException(AppStrings.networkError);
     } catch (_) {
       throw const ServerException('Unexpected sign-in error');
     }
   }
 
   @override
-  Future<User> register({
+  Future<RegisterResult> register({
     required String firstName,
     required String lastName,
     required String email,
@@ -87,29 +86,72 @@ class AuthRepositoryImpl implements AuthRepository {
         ).toJson(),
       );
 
-      final dto = AuthResponseDto.fromJson(response.data);
-      final user = User.fromJson(
-        dto.user.isNotEmpty
-            ? dto.user
-            : {
-                'id': 'local-user',
-                'email': email,
-                'name': '$firstName $lastName',
-                'isEmailVerified': false,
-              },
-      );
-
-      if (dto.token.isNotEmpty) {
-        await sessionService.saveToken(dto.token);
-      }
+      final rawData = response.data is Map<String, dynamic>
+          ? Map<String, dynamic>.from(response.data)
+          : <String, dynamic>{};
+      final serverMessage = (rawData['message'] ?? '').toString();
+      final userData = rawData['user'] is Map
+          ? Map<String, dynamic>.from(rawData['user'] as Map)
+          : <String, dynamic>{};
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return user;
+        final user = userData.isNotEmpty
+            ? User.fromJson(userData)
+            : User(
+                id: 'local-user',
+                email: email,
+                name: '$firstName $lastName',
+                phoneNumber: mobileNumber,
+                isEmailVerified: false,
+              );
+
+        return RegisterResult(
+          statusCode: response.statusCode ?? 200,
+          user: user,
+          message: serverMessage.isNotEmpty
+              ? serverMessage
+              : 'User registered successfully. Verify your mobile number to sign in.',
+        );
       }
 
-      throw const ServerException('Unable to register account');
-    } on DioException catch (_) {
-      throw const NetworkException('Unable to complete registration.');
+      return RegisterResult(
+        statusCode: response.statusCode ?? 403,
+        user: null,
+        message: serverMessage.isNotEmpty
+            ? serverMessage
+            : 'A user with this mobile number is already registered.',
+      );
+    } on DioException catch (error) {
+      final statusCode = error.response?.statusCode ?? 0;
+      final responseData = error.response?.data;
+      final serverMessage = responseData is Map
+          ? (responseData['message'] as String? ?? '')
+          : '';
+
+      if (statusCode == 403) {
+        return RegisterResult(
+          statusCode: 403,
+          user: null,
+          message: serverMessage.isNotEmpty
+              ? serverMessage
+              : 'A user with this mobile number is already registered.',
+        );
+      }
+
+      if (error.type == DioExceptionType.connectionError ||
+          error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.sendTimeout) {
+        return RegisterResult(
+          statusCode: 0,
+          user: null,
+          message: AppStrings.networkError,
+        );
+      }
+
+      throw NetworkException(
+        serverMessage.isNotEmpty ? serverMessage : AppStrings.networkError,
+      );
     }
   }
 
@@ -120,11 +162,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       await dio.post(
-        '/auth/send-otp',
-        data: {'mobileNumber': mobileNumber, 'countryCode': countryCode},
+        AppEndpoints.authSendOtp,
+        data: {
+          'mobileNumber': mobileNumber,
+          'countryCode': countryCode,
+          'purpose': 'login',
+        },
       );
     } on DioException catch (_) {
-      throw const NetworkException('Unable to send OTP.');
+      throw const NetworkException(AppStrings.networkError);
     }
   }
 
@@ -151,7 +197,13 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       return user;
-    } on DioException catch (_) {
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionError ||
+          error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.sendTimeout) {
+        throw const NetworkException(AppStrings.networkError);
+      }
       throw const AuthException('The OTP is invalid or expired.');
     }
   }
@@ -164,7 +216,7 @@ class AuthRepositoryImpl implements AuthRepository {
         data: ForgotPasswordRequestDto(email: email).toJson(),
       );
     } on DioException catch (_) {
-      throw const NetworkException('Unable to reset your password.');
+      throw const NetworkException(AppStrings.networkError);
     }
   }
 
@@ -188,7 +240,13 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       return user;
-    } on DioException catch (_) {
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionError ||
+          error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.sendTimeout) {
+        throw const NetworkException(AppStrings.networkError);
+      }
       throw const AuthException('Email verification failed.');
     }
   }

@@ -31,7 +31,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<List<Address>> fetchAddresses() async {
-    final response = await dio.get(AppEndpoints.addresses);
+    final response = await dio.get(AppEndpoints.customerAddresses);
     final items =
         response.data['items'] as List? ?? response.data as List? ?? const [];
     return items
@@ -41,7 +41,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<Address> saveAddress({required Map<String, dynamic> payload}) async {
-    final response = await dio.post(AppEndpoints.addresses, data: payload);
+    final response = await dio.post(
+      AppEndpoints.customerAddresses,
+      data: payload,
+    );
     final data = response.data is Map<String, dynamic>
         ? Map<String, dynamic>.from(response.data)
         : payload;

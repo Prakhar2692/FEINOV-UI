@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_strings.dart';
 import '../../../core/di/app_providers.dart';
+import '../../../core/error/exceptions.dart';
 import '../../../core/services/session_service.dart';
 import '../../../core/state/app_settings.dart';
 import '../domain/entities/user.dart';
@@ -46,6 +48,24 @@ class AuthController extends StateNotifier<AuthState> {
 
   final AuthRepository _repository;
   final SessionService _sessionService;
+
+  String _friendlyMessage(Object error) {
+    if (error is AppException) {
+      return error.userMessage;
+    }
+
+    final message = error.toString();
+    final normalized = message.toLowerCase();
+    if (normalized.contains('socket') ||
+        normalized.contains('connection') ||
+        normalized.contains('timeout') ||
+        normalized.contains('host lookup') ||
+        normalized.contains('network')) {
+      return AppStrings.networkError;
+    }
+
+    return message.replaceFirst('Exception: ', '');
+  }
 
   Future<void> _initialize() async {
     state = state.copyWith(isLoading: true);
@@ -93,7 +113,10 @@ class AuthController extends StateNotifier<AuthState> {
         errorMessage: null,
       );
     } catch (error) {
-      state = state.copyWith(isLoading: false, errorMessage: error.toString());
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _friendlyMessage(error),
+      );
     }
   }
 
@@ -108,7 +131,7 @@ class AuthController extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final user = await _repository.register(
+      final result = await _repository.register(
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -118,13 +141,16 @@ class AuthController extends StateNotifier<AuthState> {
       );
 
       state = state.copyWith(
-        user: user,
-        isAuthenticated: true,
+        user: result.user,
+        isAuthenticated: result.user != null,
         isLoading: false,
-        errorMessage: null,
+        errorMessage: result.message,
       );
     } catch (error) {
-      state = state.copyWith(isLoading: false, errorMessage: error.toString());
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _friendlyMessage(error),
+      );
     }
   }
 
@@ -135,7 +161,10 @@ class AuthController extends StateNotifier<AuthState> {
       await _repository.forgotPassword(email);
       state = state.copyWith(isLoading: false, errorMessage: null);
     } catch (error) {
-      state = state.copyWith(isLoading: false, errorMessage: error.toString());
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _friendlyMessage(error),
+      );
     }
   }
 
@@ -151,7 +180,10 @@ class AuthController extends StateNotifier<AuthState> {
         errorMessage: null,
       );
     } catch (error) {
-      state = state.copyWith(isLoading: false, errorMessage: error.toString());
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _friendlyMessage(error),
+      );
     }
   }
 

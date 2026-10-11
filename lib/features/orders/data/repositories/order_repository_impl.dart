@@ -13,7 +13,7 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<List<Order>> getOrders({int page = 1}) async {
     final response = await dio.get(
       AppEndpoints.orders,
-      queryParameters: {'page': page},
+      queryParameters: {'PageNumber': page},
     );
 
     final items = (response.data['items'] as List? ?? const [])
@@ -33,7 +33,9 @@ class OrderRepositoryImpl implements OrderRepository {
 
   @override
   Future<Order> getOrderById(String orderId) async {
-    final response = await dio.get('${AppEndpoints.orders}/$orderId');
+    final response = await dio.get(
+      AppEndpoints.orderDetails.replaceFirst('{orderId}', orderId),
+    );
     final data = response.data is Map<String, dynamic>
         ? Map<String, dynamic>.from(response.data)
         : <String, dynamic>{};

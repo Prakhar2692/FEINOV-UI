@@ -15,8 +15,8 @@ class SearchRepositoryImpl implements SearchRepository {
     int page = 1,
   }) async {
     final response = await dio.get(
-      AppEndpoints.products,
-      queryParameters: {'q': query, 'page': page},
+      AppEndpoints.catalogProducts,
+      queryParameters: {'q': query, 'PageNumber': page},
     );
 
     final items = (response.data['items'] as List? ?? const [])
@@ -34,8 +34,8 @@ class SearchRepositoryImpl implements SearchRepository {
     if (query.trim().isEmpty) return const [];
 
     final response = await dio.get(
-      AppEndpoints.products,
-      queryParameters: {'q': query, 'limit': 5},
+      AppEndpoints.catalogProducts,
+      queryParameters: {'q': query, 'PageSize': 5},
     );
 
     final items = (response.data['items'] as List? ?? const [])

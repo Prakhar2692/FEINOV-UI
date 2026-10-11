@@ -1,5 +1,15 @@
 import '../entities/user.dart';
 
+class RegisterResult {
+  const RegisterResult({required this.statusCode, this.user, this.message});
+
+  final int statusCode;
+  final User? user;
+  final String? message;
+
+  bool get isSuccess => statusCode == 200 && user != null;
+}
+
 abstract class AuthRepository {
   Future<bool> isAuthenticated();
 
@@ -9,7 +19,7 @@ abstract class AuthRepository {
     bool rememberMe = true,
   });
 
-  Future<User> register({
+  Future<RegisterResult> register({
     required String firstName,
     required String lastName,
     required String email,

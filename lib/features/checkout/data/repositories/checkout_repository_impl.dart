@@ -13,10 +13,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     required Map<String, dynamic> payload,
   }) async {
     try {
-      final response = await dio.post(
-        '${AppEndpoints.orders}/checkout-session',
-        data: payload,
-      );
+      final response = await dio.post(AppEndpoints.checkout, data: payload);
       return Map<String, dynamic>.from(response.data);
     } on DioException {
       return {'status': 'success', 'sessionId': 'demo_session'};
@@ -42,7 +39,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   @override
   Future<Map<String, dynamic>> getShippingMethods() async {
     try {
-      final response = await dio.get('${AppEndpoints.orders}/shipping-methods');
+      final response = await dio.get(AppEndpoints.orders);
       return Map<String, dynamic>.from(response.data);
     } on DioException {
       return {

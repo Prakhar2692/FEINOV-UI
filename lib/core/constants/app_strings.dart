@@ -14,6 +14,8 @@ class AppStrings {
   static const String home = 'Home';
 
   static const String noInternet = 'No internet connection';
+  static const String networkError =
+      'No internet connection. Please check your connection and try again.';
   static const String somethingWentWrong =
       'Something went wrong. Please try again.';
   static const String sessionExpired =
